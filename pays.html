@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pays du monde — Échauffement</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>🌍 Pays du monde</h1>
+    <a class="back" href="index.html">← Accueil</a>
+  </header>
+
+  <!-- Écran de choix -->
+  <section id="setup">
+    <p class="muted">Choisis une zone. Tape le nom des pays : dès qu'un nom est reconnu, le pays se colore en vert et son nom s'affiche. À la fin, les pays oubliés apparaissent en rouge.</p>
+    <div class="choices" id="choices"></div>
+  </section>
+
+  <!-- Jeu -->
+  <section id="game" class="hidden">
+    <div class="hud">
+      <input id="guess" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Tape un pays…">
+      <div class="stat" id="timer"><small>Temps</small>--:--</div>
+      <div class="stat" id="score"><small>Trouvés</small>0 / 0</div>
+      <button class="btn danger" id="giveup">J'abandonne</button>
+    </div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="last" id="last"></div>
+    <div class="mapbox">
+      <svg id="map"></svg>
+      <div class="zoombtns"><button id="zin" title="Zoomer">+</button><button id="zout" title="Dézoomer">−</button><button id="zreset" title="Recentrer">⟲</button></div>
+      <div class="hint">Molette / pincement pour zoomer · glisser pour déplacer</div>
+      <div class="tip" id="tip"></div>
+    </div>
+    <div id="results" class="results hidden"></div>
+  </section>
+</div>
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/pays.js"></script>
+</body>
+</html>

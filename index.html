@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Échauffement — 10 minutes pour se mettre en route</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>⚡ Échauffement</h1>
+    <p>Un petit jeu de 5 à 10 minutes pour allumer le cerveau, puis on attaque les révisions. Culture générale + concentration, chaque jour.</p>
+    <div class="streak" id="streak"></div>
+  </section>
+
+  <div class="grid">
+    <a class="card" href="pays.html">
+      <div class="ico">🌍</div>
+      <h2>Pays du monde</h2>
+      <p>Retrouve tous les pays d'un continent (ou du monde entier) contre la montre. Chaque pays trouvé se colore sur la carte, les oubliés s'affichent à la fin.</p>
+      <div class="meta" id="m-pays">7 zones · 2 à 10 min</div>
+    </a>
+    <a class="card" href="civique.html">
+      <div class="ico">🇫🇷</div>
+      <h2>Examen civique</h2>
+      <p>QCM de l'examen pour la naturalisation : correction immédiate, explication, et ton pourcentage face au seuil officiel de 80 %.</p>
+      <div class="meta" id="m-civ">20 questions · 10 min</div>
+    </a>
+  </div>
+
+  <p class="muted small" style="margin-top:28px">Règle d'or : un seul jeu, puis on ferme l'onglet et on ouvre le cours. 🎯</p>
+</div>
+<script src="js/common.js"></script>
+<script>
+  const s = streak();
+  document.getElementById("streak").innerHTML = s
+    ? `🔥 Série : <b>${s} jour${s > 1 ? "s" : ""}</b> d'affilée`
+    : `🔥 Lance ton premier échauffement du jour`;
+  const h = Store.get("civ:hist", []);
+  if (h.length) document.getElementById("m-civ").textContent = `20 questions · 10 min · dernier score : ${h[h.length - 1].p}%`;
+</script>
+</body>
+</html>
