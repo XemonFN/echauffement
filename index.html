@@ -24,8 +24,20 @@
     <a class="card" href="civique.html">
       <div class="ico">🇫🇷</div>
       <h2>Examen civique</h2>
-      <p>QCM de l'examen pour la naturalisation : correction immédiate, explication, et ton pourcentage face au seuil officiel de 80 %.</p>
+      <p>QCM de l'examen pour la naturalisation au vrai format (connaissances + mises en situation), avec correction immédiate et ton score face au seuil officiel de 80 %.</p>
       <div class="meta" id="m-civ">20 questions · 10 min</div>
+    </a>
+    <a class="card" href="geo.html">
+      <div class="ico">🌐</div>
+      <h2>Géopolitique</h2>
+      <p>Organisations, routes stratégiques, conflits, économie mondiale. Niveau accessible, et chaque réponse t'explique pourquoi c'est important.</p>
+      <div class="meta">10 ou 20 questions · 5 à 10 min</div>
+    </a>
+    <a class="card" href="tech.html">
+      <div class="ico">🔧</div>
+      <h2>Comment ça marche ?</h2>
+      <p>Avions, GPS, fusées, batteries, pilote automatique… L'ingénierie du quotidien expliquée simplement.</p>
+      <div class="meta">10 ou 20 questions · 5 à 10 min</div>
     </a>
   </div>
 
@@ -37,7 +49,7 @@
   document.getElementById("streak").innerHTML = s
     ? `🔥 Série : <b>${s} jour${s > 1 ? "s" : ""}</b> d'affilée`
     : `🔥 Lance ton premier échauffement du jour`;
-  const h = Store.get("civ:hist", []);
+  const h = Store.get("civ2:hist", []);
   if (h.length) document.getElementById("m-civ").textContent = `20 questions · 10 min · dernier score : ${h[h.length - 1].p}%`;
 </script>
 </body>

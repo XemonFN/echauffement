@@ -16,7 +16,8 @@
   <section id="setup">
     <div class="qcard">
       <p style="margin-top:0">L'examen officiel (obligatoire pour la naturalisation depuis le 1er janvier 2026) : <b>40 questions en 45 minutes</b>, il faut <b>32 bonnes réponses, soit 80 %</b>. Les questions portent sur 5 thèmes.</p>
-      <p class="muted small">Ici, les questions sont tirées au hasard dans une banque construite à partir de la liste officielle des questions de connaissance du ministère de l'Intérieur, avec quelques mises en situation. Tu vois tout de suite si tu as juste, avec une explication.</p>
+      <p style="margin:0 0 6px">Comme le vrai : <b>28 questions de connaissance + 12 mises en situation</b>, 4 propositions et une seule bonne réponse.</p>
+      <p class="muted small">Questions de connaissance : intitulés de la liste officielle « naturalisation » du ministère de l'Intérieur (qui ne publie pas les réponses : propositions et corrections rédigées pour l'entraînement). Mises en situation : non publiées par le ministère, rédigées sur le même modèle.</p>
       <div class="choices" id="modes"></div>
       <p class="muted small" id="histline" style="margin-bottom:0"></p>
     </div>
@@ -44,6 +45,12 @@
 </div>
 <script src="js/common.js"></script>
 <script src="js/questions.js"></script>
-<script src="js/civique.js"></script>
+<script>
+const CFG = { id: "civ2", pass: 0.8, modes: [
+  { key: "court", label: "Format court", sub: "20 questions (14 + 6 mises en situation) · 10 min", know: 14, sit: 6, time: 600 },
+  { key: "blanc", label: "Examen blanc", sub: "40 questions (28 + 12) · 45 min, conditions réelles", know: 28, sit: 12, time: 2700 }
+]};
+</script>
+<script src="js/quiz.js"></script>
 </body>
 </html>

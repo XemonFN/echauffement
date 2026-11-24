@@ -69,11 +69,15 @@ function start(zone) {
   }, 250);
 }
 
+$("follow").checked = Store.get("follow", true);
+$("follow").onchange = () => Store.set("follow", $("follow").checked);
+
 let svg, gRoot, zoomer, path, kZoom = 1;
 
 function drawMap() {
   svg = d3.select("#map"); svg.selectAll("*").remove();
   const W = svg.node().clientWidth, H = svg.node().clientHeight;
+  G.W = W; G.H = H; G.bounds = {};
   const z = G.zone;
   let proj;
   if (z.world) proj = d3.geoNaturalEarth1().fitExtent([[8, 8], [W - 8, H - 8]], { type: "Sphere" });
@@ -102,6 +106,7 @@ function drawMap() {
       const big = largestPart(f);
       const a = path.area(f);
       pos = path.centroid(big);
+      G.bounds[c.id] = path.bounds(big);
       small = a < 45;
     }
     if (!G.zone.world && LABEL_AT[c.id]) pos = proj(LABEL_AT[c.id]);
@@ -184,6 +189,7 @@ function found(c) {
   const inp = $("guess"); inp.value = "";
   inp.classList.add("flash"); setTimeout(() => inp.classList.remove("flash"), 250);
   $("last").textContent = "✓ " + c.fr;
+  if ($("follow").checked) flyTo(c);
   updateHud();
   if (G.found.size === G.total) end();
 }
@@ -195,6 +201,24 @@ function updateHud() {
   $("prog").style.width = (100 * G.found.size / G.total) + "%";
 }
 
+// Zoom sur le pays trouvé, en gardant ses voisins visibles
+function flyTo(c) {
+  const p = G.labelPos[c.id]; if (!p) return;
+  const b = G.bounds[c.id];
+  const maxK = G.zone.world ? 10 : 8;
+  let k = G.zone.world ? 7 : 4.5;
+  if (b && !G.small[c.id]) {
+    const dx = b[1][0] - b[0][0], dy = b[1][1] - b[0][1];
+    k = 0.3 / Math.max(dx / G.W, dy / G.H);   // le pays occupe ~30 % de l'écran
+  }
+  k = Math.min(maxK, k);
+  if (k < 1.5) { svg.interrupt().transition().duration(800).call(zoomer.transform, d3.zoomIdentity); return; }
+  const cx = b && !G.small[c.id] ? (b[0][0] + b[1][0]) / 2 : p[0];
+  const cy = b && !G.small[c.id] ? (b[0][1] + b[1][1]) / 2 : p[1];
+  svg.interrupt().transition().duration(800).ease(d3.easeCubicInOut)
+    .call(zoomer.transform, d3.zoomIdentity.translate(G.W / 2, G.H / 2).scale(k).translate(-cx, -cy));
+}
+
 // ---------- Fin ----------
 function end() {
   if (G.over) return;
@@ -203,6 +227,7 @@ function end() {
   $("guess").disabled = true;
   const missed = G.list.filter(c => !G.found.has(c.id)).sort((a, b) => a.fr.localeCompare(b.fr, "fr"));
   missed.forEach(c => { mark(c, "miss"); addLabel(c, "miss"); });
+  svg.interrupt().transition().duration(800).call(zoomer.transform, d3.zoomIdentity);
 
   const pct = Math.round(100 * G.found.size / G.total);
   const key = "best:" + G.zone.key, best = Store.get(key, null);
