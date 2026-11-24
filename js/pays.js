@@ -168,7 +168,10 @@ function tryGuess(force) {
   const v = norm($("guess").value);
   if (!v) return;
   const c = G.names.get(v);
-  if (!c || G.found.has(c.id)) return;
+  if (!c || G.found.has(c.id)) {
+    if (force) { $("guess").value = ""; $("last").textContent = c ? "Déjà trouvé : " + c.fr : "✗ Pas reconnu ici"; }
+    return;
+  }
   // Si un autre pays non trouvé commence pareil (Niger → Nigeria), on attend un peu
   const ambiguous = [...G.names.entries()].some(([k, o]) => k !== v && k.startsWith(v) && !G.found.has(o.id) && o.id !== c.id);
   if (ambiguous && !force) { pendingTimer = setTimeout(() => tryGuess(true), 900); return; }
