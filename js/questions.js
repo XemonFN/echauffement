@@ -3,6 +3,7 @@
 // (le ministère ne publie pas les réponses : propositions et corrections rédigées pour l'entraînement).
 // Mises en situation (s:1) : non publiées officiellement — rédigées sur le modèle de l'examen.
 // th = thème, q = question, a = bonne réponse, w = 3 mauvaises réponses, e = explication
+(function () {
 const THEMES = {
   valeurs: "Principes et valeurs de la République",
   institutions: "Système institutionnel et politique",
@@ -326,3 +327,5 @@ const QUESTIONS = [
 {s:1,th:"societe",q:"Votre machine à laver est cassée et vous en achetez une neuve. Que faire de l'ancienne ?",a:"La faire reprendre par le vendeur ou la déposer à la déchetterie",w:["La laisser sur le trottoir","La jeter dans la poubelle ordinaire","La déposer dans la cour de l'immeuble"],e:"Le dépôt sauvage est puni d'une amende."},
 {s:1,th:"societe",q:"Votre conjoint veut punir votre enfant en le frappant. Que dit la loi ?",a:"C'est interdit : les violences éducatives sont proscrites",w:["C'est autorisé à la maison","C'est autorisé si l'enfant a désobéi","C'est autorisé une fois par semaine"],e:"Loi de 2019 ; en cas de danger, le 119 (enfance en danger) peut être appelé."}
 ];
+registerBank("civ", "Examen civique", THEMES, QUESTIONS);
+})();

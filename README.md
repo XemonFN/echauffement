@@ -1,14 +1,16 @@
-# ⚡ Échauffement
+# Échauffement
 
-Petits jeux de 5 à 10 minutes pour se mettre en route avant de réviser.
+Petits jeux de 5 à 10 minutes pour se mettre en route avant de réviser, puis un minuteur pour passer aux révisions. Thème : tableau des départs d'aéroport.
 
-- **Pays du monde** : retrouver tous les pays d'un continent (ou du monde) contre la montre. Les pays trouvés se colorent sur la carte, les oubliés s'affichent en rouge à la fin.
-- **Examen civique** : QCM de l'examen pour la naturalisation au vrai format (connaissances + mises en situation : 14 + 6 en format court de 10 min, 28 + 12 en examen blanc de 45 min), mode « Mes erreurs », score comparé au seuil officiel de 80 %.
-- **Géopolitique** : organisations, routes stratégiques, conflits, économie mondiale.
-- **Comment ça marche ?** : aéronautique, espace, numérique, énergie, automatique, physique du quotidien.
+- **Défi du jour** : 12 questions mélangées (civique, géopolitique, ingénierie, anglais, capitales), puis passage direct aux révisions.
+- **Pays du monde** : taper les noms (zoom automatique sur chaque pays trouvé), « Où est… ? » (cliquer sur la carte) et capitales. Bouton « Rejouer mes oubliés ».
+- **Départements et régions** : la carte de France (nom ou numéro de département).
+- **Examen civique** : QCM naturalisation au vrai format (28 connaissances + 12 mises en situation, 80 % pour réussir).
+- **Géopolitique**, **Comment ça marche ?** (ingénierie) et **Anglais** (niveau avancé, US/UK).
+- **Révisions** : minuteur 25 + 5 min, minutes de révision comptées chaque jour.
 
-Sur la carte, chaque pays trouvé est mis en avant par un zoom automatique (désactivable avec « Suivre »).
+Partout, une **répétition espacée** (système de Leitner) : une erreur revient le jour même, une bonne réponse revient après 1, 3, 7, 14, 30 puis 60 jours. Statistiques par thème sur chaque quiz.
 
-Site statique (HTML/CSS/JS), aucune installation : ouvrir `index.html` ou activer GitHub Pages.
+Site statique, installable sur iPhone (Partager → Sur l'écran d'accueil) et utilisable hors connexion. Les scores restent dans le navigateur de chaque appareil.
 
-Sources : carte [world-atlas](https://github.com/topojson/world-atlas) (Natural Earth), noms de pays [world-countries](https://github.com/mledoze/countries), questions de connaissance d'après la liste officielle « naturalisation » du ministère de l'Intérieur (formation-civique.interieur.gouv.fr).
+Sources : carte [world-atlas](https://github.com/topojson/world-atlas) (Natural Earth), noms et capitales [world-countries](https://github.com/mledoze/countries), France [france-geojson](https://github.com/gregoiredavid/france-geojson), questions de connaissance de l'examen civique d'après la liste officielle « naturalisation » du ministère de l'Intérieur. Polices Archivo et IBM Plex Mono (SIL Open Font License).

@@ -2,55 +2,78 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Échauffement — 10 minutes pour se mettre en route</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Échauffement — départs</title>
+<meta name="description" content="Petits jeux de 5 à 10 minutes pour se mettre en route avant de réviser.">
+<meta name="theme-color" content="#14181e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Échauffement">
+<link rel="preload" href="fonts/archivo-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="wrap">
-  <section class="hero">
-    <h1>⚡ Échauffement</h1>
-    <p>Un petit jeu de 5 à 10 minutes pour allumer le cerveau, puis on attaque les révisions. Culture générale + concentration, chaque jour.</p>
-    <div class="streak" id="streak"></div>
+  <section class="hall">
+    <div>
+      <h1>Échauffement</h1>
+      <p>Un vol court pour allumer le cerveau, puis direction les révisions.</p>
+    </div>
+    <div class="counters">
+      <div class="counter"><b id="c-streak">0</b><span>jours d'affilée</span></div>
+      <div class="counter"><b id="c-due">0</b><span>à réviser aujourd'hui</span></div>
+      <div class="counter"><b id="c-focus">0</b><span>min de révision</span></div>
+    </div>
   </section>
 
-  <div class="grid">
-    <a class="card" href="pays.html">
-      <div class="ico">🌍</div>
-      <h2>Pays du monde</h2>
-      <p>Retrouve tous les pays d'un continent (ou du monde entier) contre la montre. Chaque pays trouvé se colore sur la carte, les oubliés s'affichent à la fin.</p>
-      <div class="meta" id="m-pays">7 zones · 2 à 10 min</div>
-    </a>
-    <a class="card" href="civique.html">
-      <div class="ico">🇫🇷</div>
-      <h2>Examen civique</h2>
-      <p>QCM de l'examen pour la naturalisation au vrai format (connaissances + mises en situation), avec correction immédiate et ton score face au seuil officiel de 80 %.</p>
-      <div class="meta" id="m-civ">20 questions · 10 min</div>
-    </a>
-    <a class="card" href="geo.html">
-      <div class="ico">🌐</div>
-      <h2>Géopolitique</h2>
-      <p>Organisations, routes stratégiques, conflits, économie mondiale. Niveau accessible, et chaque réponse t'explique pourquoi c'est important.</p>
-      <div class="meta">10 ou 20 questions · 5 à 10 min</div>
-    </a>
-    <a class="card" href="tech.html">
-      <div class="ico">🔧</div>
-      <h2>Comment ça marche ?</h2>
-      <p>Avions, GPS, fusées, batteries, pilote automatique… L'ingénierie du quotidien expliquée simplement.</p>
-      <div class="meta">10 ou 20 questions · 5 à 10 min</div>
-    </a>
-  </div>
-
-  <p class="muted small" style="margin-top:28px">Règle d'or : un seul jeu, puis on ferme l'onglet et on ouvre le cours. 🎯</p>
+  <section class="board" aria-labelledby="board-title">
+    <div class="board-head"><h2 id="board-title">Départs</h2><span class="clock" id="clock">--:--</span></div>
+    <div class="cols" aria-hidden="true"><span>Vol</span><span>Destination</span><span>Durée</span><span>Statut</span></div>
+    <ul class="flights" id="flights"></ul>
+    <div class="board-foot">
+      <span>Règle d'or : un seul vol, puis les révisions.</span>
+      <span>Sur iPhone : Partager, puis « Sur l'écran d'accueil ».</span>
+    </div>
+  </section>
 </div>
 <script src="js/common.js"></script>
 <script>
-  const s = streak();
-  document.getElementById("streak").innerHTML = s
-    ? `🔥 Série : <b>${s} jour${s > 1 ? "s" : ""}</b> d'affilée`
-    : `🔥 Lance ton premier échauffement du jour`;
-  const h = Store.get("civ2:hist", []);
-  if (h.length) document.getElementById("m-civ").textContent = `20 questions · 10 min · dernier score : ${h[h.length - 1].p}%`;
+{
+  const all = SRS.all(), t = dayNum();
+  const due = prefixes => Object.keys(all).filter(k => prefixes.some(p => k.startsWith(p)) && all[k].due <= t).length;
+  const last = k => { const h = Store.get(k + ":hist", []); return h.length ? h[h.length - 1].p : null; };
+  const defi = Store.get("defi:" + today(), null);
+  const focus = focusMinutes();
+  const FLIGHTS = [
+    { code: "DEF 001", href: "defi.html", dest: "Défi du jour", sub: "Un peu de tout, 12 questions", dur: "7 min", featured: true,
+      status: defi !== null ? [`Arrivé, ${defi} %`, ""] : ["Embarquement", "now"] },
+    { code: "MAP 101", href: "pays.html", dest: "Pays du monde", sub: "Noms, « Où est… ? », capitales", dur: "2-10 min", d: due(["loc:", "cap:"]) },
+    { code: "FRA 102", href: "france.html", dest: "Départements et régions", sub: "La carte de France", dur: "2-10 min", d: due(["fr:"]) },
+    { code: "CIV 201", href: "civique.html", dest: "Examen civique", sub: "Naturalisation, vrai format", dur: "10-45 min", d: due(["civ:"]), l: last("civ") },
+    { code: "GEO 202", href: "geo.html", dest: "Géopolitique", sub: "Comprendre le monde", dur: "5-10 min", d: due(["geo:"]), l: last("geo") },
+    { code: "TEC 203", href: "tech.html", dest: "Comment ça marche ?", sub: "Avions, énergie, automatique", dur: "5-10 min", d: due(["tech:"]), l: last("tech") },
+    { code: "ENG 204", href: "anglais.html", dest: "Anglais", sub: "Expressions US/UK, niveau avancé", dur: "5-10 min", d: due(["en:"]), l: last("en") },
+    { code: "REV 900", href: "focus.html", dest: "Révisions", sub: "Minuteur 25 + 5 min", dur: "25 min",
+      status: focus ? [`${focus} min aujourd'hui`, ""] : ["Après le vol", "due"] }
+  ];
+  document.getElementById("flights").innerHTML = FLIGHTS.map((f, i) => {
+    const [txt, cls] = f.status || (f.d ? [`${f.d} à réviser`, "due"] : f.l !== undefined && f.l !== null ? [`À l'heure, ${f.l} %`, ""] : ["À l'heure", ""]);
+    return `<li><a class="flight${f.featured ? " featured" : ""}" href="${f.href}" style="--i:${i}">
+      <span class="code">${f.code}</span>
+      <span class="dest">${f.dest}<small>${f.sub}</small></span>
+      <span class="dur">${f.dur}</span>
+      <span class="status ${cls}">${txt}</span></a></li>`;
+  }).join("");
+  const totalDue = due(["civ:", "geo:", "tech:", "en:", "capq:", "loc:", "cap:", "fr:"]);
+  document.getElementById("c-streak").textContent = streak();
+  document.getElementById("c-due").textContent = totalDue;
+  document.getElementById("c-focus").textContent = focus;
+  const clock = () => { const d = new Date(); document.getElementById("clock").textContent = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+  clock(); setInterval(clock, 10000);
+}
 </script>
 </body>
 </html>

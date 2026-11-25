@@ -2,32 +2,36 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Examen civique — Échauffement</title>
+<meta name="theme-color" content="#14181e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Échauffement">
+<link rel="preload" href="fonts/archivo-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="wrap" style="max-width:820px">
+<div class="wrap">
   <header class="top">
-    <h1>🇫🇷 Examen civique</h1>
-    <a class="back" href="index.html">← Accueil</a>
+    <a class="back" href="index.html">← Départs</a>
+    <h1>Examen civique</h1>
   </header>
 
   <section id="setup">
-    <div class="qcard">
-      <p style="margin-top:0">L'examen officiel (obligatoire pour la naturalisation depuis le 1er janvier 2026) : <b>40 questions en 45 minutes</b>, il faut <b>32 bonnes réponses, soit 80 %</b>. Les questions portent sur 5 thèmes.</p>
-      <p style="margin:0 0 6px">Comme le vrai : <b>28 questions de connaissance + 12 mises en situation</b>, 4 propositions et une seule bonne réponse.</p>
-      <p class="muted small">Questions de connaissance : intitulés de la liste officielle « naturalisation » du ministère de l'Intérieur (qui ne publie pas les réponses : propositions et corrections rédigées pour l'entraînement). Mises en situation : non publiées par le ministère, rédigées sur le même modèle.</p>
-      <div class="choices" id="modes"></div>
-      <p class="muted small" id="histline" style="margin-bottom:0"></p>
-    </div>
+    <p class="intro">Comme le vrai examen de naturalisation : <b>28 questions de connaissance et 12 mises en situation</b>, 4 propositions, une seule bonne réponse, et il faut <b>32/40 (80 %)</b>. Les intitulés de connaissance viennent de la liste officielle du ministère de l'Intérieur, qui ne publie pas les réponses : propositions et corrections sont rédigées pour l'entraînement. Les mises en situation ne sont pas publiées : elles sont écrites sur le même modèle.</p>
+    <div class="choices" id="modes"></div>
+    <div id="stats"></div>
   </section>
 
   <section id="quiz" class="hidden">
     <div class="hud">
-      <div class="stat" id="qnum"><small>Question</small>1 / 20</div>
+      <div class="stat" id="qnum"><small>Question</small>1</div>
       <div class="stat" id="qscore"><small>Bonnes</small>0</div>
-      <div class="stat" id="qtimer"><small>Temps</small>10:00</div>
+      <div class="stat" id="qtimer"><small>Temps</small>--:--</div>
       <button class="btn danger" id="stop" style="margin-left:auto">Terminer</button>
     </div>
     <div class="bar"><i id="qprog"></i></div>
@@ -35,10 +39,10 @@
       <span class="tag" id="qtheme"></span>
       <p class="qtext" id="qtext"></p>
       <div class="opts" id="opts"></div>
-      <div class="expl hidden" id="expl"></div>
-      <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn primary hidden" id="next">Suivante →</button></div>
+      <div class="expl hidden" id="expl" aria-live="polite"></div>
+      <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn primary hidden" id="next">Question suivante</button></div>
     </div>
-    <p class="muted small">Raccourcis : touches 1 à 4 pour répondre, Entrée pour passer à la suite.</p>
+    <p class="muted small">Clavier : touches 1 à 4 pour répondre, Entrée pour continuer.</p>
   </section>
 
   <section id="end" class="hidden"></section>
@@ -46,9 +50,9 @@
 <script src="js/common.js"></script>
 <script src="js/questions.js"></script>
 <script>
-const CFG = { id: "civ2", pass: 0.8, modes: [
-  { key: "court", label: "Format court", sub: "20 questions (14 + 6 mises en situation) · 10 min", know: 14, sit: 6, time: 600 },
-  { key: "blanc", label: "Examen blanc", sub: "40 questions (28 + 12) · 45 min, conditions réelles", know: 28, sit: 12, time: 2700 }
+const CFG = { bank: "civ", pass: 0.8, modes: [
+  { key: "court", label: "Format court", sub: "20 questions (14 + 6 mises en situation), 10 min", know: 14, sit: 6, time: 600 },
+  { key: "blanc", label: "Examen blanc", sub: "40 questions (28 + 12), 45 min, conditions réelles", know: 28, sit: 12, time: 2700 }
 ]};
 </script>
 <script src="js/quiz.js"></script>

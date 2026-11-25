@@ -1,53 +1,66 @@
-// Moteur de QCM commun (examen civique, géopolitique, comment ça marche…)
-// La page définit avant ce script : QUESTIONS, THEMES et CFG = { id, pass (0-1 ou null), modes:[{key,label,sub,know,sit,n,time}] }
-QUESTIONS.forEach((q, i) => q.id = i);
+// ===== Moteur de QCM commun =====
+// La page définit CFG = { bank: "civ" | mix: [{bank, n}], pass: 0.8|null, modes: [...], capitals: bool, autostart: bool, title }
 const $ = id => document.getElementById(id);
-const K = k => CFG.id + ":" + k;
 
-function buildModes() {
+// Questions générées : « Quelle est la capitale de… ? » à partir des données de la carte
+async function loadCapitalBank() {
+  const countries = await fetch("data/countries.json").then(r => r.json());
+  const withCap = countries.filter(c => c.cap);
+  const CONT = { europe: "Europe", afrique: "Afrique", asie: "Asie", amnord: "Amérique du Nord & centrale", amsud: "Amérique du Sud", oceanie: "Océanie" };
+  const qs = withCap.map(c => {
+    const same = shuffle(withCap.filter(o => o.c === c.c && o.id !== c.id)).slice(0, 3).map(o => o.cap);
+    return { th: c.c, q: `Quelle est la capitale : ${c.fr} ?`, a: c.cap, w: same, e: `${c.cap} est la capitale de ${c.fr}.` };
+  }).filter(q => q.w.length === 3);
+  registerBank("capq", "Capitales", CONT, qs);
+}
+
+const bankOf = q => BANKS[q.bank];
+let MAIN = CFG.bank ? BANKS[CFG.bank] : null;
+
+function modesWithReview() {
+  const pool = MAIN.questions.map(q => q.id);
+  const due = SRS.dueCount(pool);
+  return CFG.modes.concat([{ key: "revue", label: "À réviser aujourd'hui", sub: due ? `${due} question${due > 1 ? "s" : ""} qui reviennent (erreurs et rappels)` : "Rien à réviser pour l'instant", n: Math.min(30, due), time: 900, due }]);
+}
+
+function buildSetup() {
   const box = $("modes"); box.innerHTML = "";
-  const errs = Store.get(K("errors"), []);
-  CFG.modes.concat([{ key: "erreurs", label: "Mes erreurs", sub: "Revoir les questions ratées", n: 20, time: 600 }]).forEach(m => {
+  modesWithReview().forEach(m => {
     const b = document.createElement("button");
-    b.className = "choice";
-    const extra = m.key === "erreurs" ? `<span class="${errs.length ? "best" : ""}">${errs.length} question${errs.length > 1 ? "s" : ""} à revoir</span>` : "";
-    b.innerHTML = `<b>${m.label}</b><span>${m.sub}</span>${extra}`;
-    if (m.key === "erreurs" && !errs.length) { b.disabled = true; b.style.opacity = .5; }
+    b.className = "choice" + (m.key === "revue" && m.due ? " hot" : "");
+    b.innerHTML = `<b></b><span></span>`;
+    b.children[0].textContent = m.label; b.children[1].textContent = m.sub;
+    if (m.key === "revue" && !m.due) b.disabled = true;
     b.onclick = () => start(m);
     box.appendChild(b);
   });
-  const hist = Store.get(K("hist"), []);
-  const good = h => CFG.pass ? h.p >= CFG.pass * 100 : h.p >= 70;
-  $("histline").innerHTML = (hist.length
-    ? `Tes derniers scores : <span class="hist">${hist.slice(-8).map(h => `<b style="color:${good(h) ? "var(--ok)" : "var(--warn)"}">${h.p}%</b>`).join(" · ")}</span> · `
-    : "") + `${QUESTIONS.length} questions dans la banque.`;
-}
-buildModes();
-
-// Tirage équilibré entre les thèmes, en privilégiant les questions vues le moins souvent
-function pick(n, pool) {
-  const seen = Store.get(K("seen"), {});
-  const byTh = {};
-  shuffle(pool).sort((a, b) => (seen[a.id] || 0) - (seen[b.id] || 0))
-    .forEach(q => (byTh[q.th] = byTh[q.th] || []).push(q));
-  const ths = shuffle(Object.keys(byTh)), out = [];
-  while (out.length < n && ths.some(t => byTh[t].length)) {
-    for (const t of ths) { if (byTh[t].length && out.length < n) out.push(byTh[t].shift()); }
-  }
-  return out;
+  // Statistiques par thème
+  const st = themeStats(MAIN), rows = [];
+  let weakest = null;
+  Object.keys(MAIN.themes).forEach(t => {
+    const s = st[t]; if (!s) return;
+    const pct = s.n ? Math.round(100 * s.ok / s.n) : null;
+    if (pct !== null && s.n >= 3 && (!weakest || pct < weakest.pct)) weakest = { t, pct };
+    rows.push(`<div class="srow"><span class="sname">${MAIN.themes[t]}</span><span class="sbar"><i style="width:${pct ?? 0}%;background:${pct === null ? "transparent" : pct >= 80 ? "var(--ok)" : pct >= 60 ? "var(--sig)" : "var(--ko)"}"></i></span><span class="spct">${pct === null ? "—" : pct + " %"}</span><span class="sseen">${s.seen}/${s.total} vues</span></div>`);
+  });
+  const hist = Store.get(CFG.bank + ":hist", []);
+  $("stats").innerHTML = `<h3>Ta progression</h3>${rows.join("")}
+    <p class="muted small" style="margin:10px 0 0">${weakest ? `Point faible : <b>${MAIN.themes[weakest.t]}</b> (${weakest.pct} %). ` : ""}${hist.length ? `Derniers scores : ${hist.slice(-6).map(h => h.p + " %").join(", ")}.` : "Fais une première session pour voir tes statistiques."}</p>`;
 }
 
 let Q = null;
 function start(mode) {
   let list;
-  if (mode.key === "erreurs") {
-    const errs = Store.get(K("errors"), []);
-    list = shuffle(pick(mode.n, QUESTIONS.filter(q => errs.includes(q.id))));
+  if (CFG.mix) {
+    list = [];
+    CFG.mix.forEach(m => { if (BANKS[m.bank]) list.push(...srsPick(m.n, BANKS[m.bank].questions)); });
+    list = shuffle(list);
+  } else if (mode.key === "revue") {
+    list = shuffle(srsPick(mode.n, MAIN.questions.filter(q => SRS.isDue(q.id))));
   } else if (mode.sit !== undefined) {
-    // comme à l'examen : d'abord les questions de connaissance, puis les mises en situation
-    list = shuffle(pick(mode.know, QUESTIONS.filter(q => !q.s))).concat(shuffle(pick(mode.sit, QUESTIONS.filter(q => q.s))));
+    list = shuffle(srsPick(mode.know, MAIN.questions.filter(q => !q.s))).concat(shuffle(srsPick(mode.sit, MAIN.questions.filter(q => q.s))));
   } else {
-    list = shuffle(pick(mode.n, QUESTIONS));
+    list = shuffle(srsPick(mode.n, MAIN.questions));
   }
   Q = { mode, list, i: 0, good: 0, answers: [], t0: performance.now(), over: false };
   $("setup").classList.add("hidden"); $("end").classList.add("hidden"); $("quiz").classList.remove("hidden");
@@ -63,11 +76,12 @@ function tick() {
 }
 
 function show() {
-  const q = Q.list[Q.i];
-  $("qnum").innerHTML = `<small>Question</small>${Q.i + 1} / ${Q.list.length}`;
+  const q = Q.list[Q.i], B = bankOf(q);
+  $("qnum").innerHTML = `<small>Question</small>${Q.i + 1}/${Q.list.length}`;
   $("qscore").innerHTML = `<small>Bonnes</small>${Q.good}`;
   $("qprog").style.width = (100 * Q.i / Q.list.length) + "%";
-  $("qtheme").textContent = (q.s ? "Mise en situation · " : "") + THEMES[q.th];
+  const e = SRS.get(q.id);
+  $("qtheme").textContent = (CFG.mix ? B.name + " · " : "") + (q.s ? "Mise en situation · " : "") + B.themes[q.th] + (e && e.b === 0 ? " · déjà ratée" : "");
   $("qtheme").className = "tag" + (q.s ? " sit" : "");
   $("qtext").textContent = q.q;
   $("expl").classList.add("hidden"); $("next").classList.add("hidden");
@@ -88,19 +102,20 @@ function answer(btn, choice) {
   const q = Q.list[Q.i], ok = choice === q.a;
   if (ok) Q.good++;
   Q.answers.push({ q, choice, ok });
+  SRS.answer(q.id, ok);
   [...$("opts").children].forEach(b => { b.disabled = true; if (b.lastChild.textContent === q.a) b.classList.add("good"); });
   if (!ok) btn.classList.add("bad");
   const ex = $("expl");
   ex.className = "expl " + (ok ? "ok" : "ko");
-  ex.innerHTML = `<b>${ok ? "✅ Bonne réponse." : "❌ Mauvaise réponse."}</b> `;
+  const e = SRS.get(q.id);
+  ex.innerHTML = `<b>${ok ? "Bonne réponse." : "Mauvaise réponse."}</b> `;
   ex.appendChild(document.createTextNode(q.e));
+  const nxt = document.createElement("div"); nxt.className = "when";
+  nxt.textContent = ok ? `Elle reviendra dans ${SRS_DAYS[e.b]} jour${SRS_DAYS[e.b] > 1 ? "s" : ""}.` : "Elle reviendra dans tes révisions du jour.";
+  ex.appendChild(nxt);
   $("qscore").innerHTML = `<small>Bonnes</small>${Q.good}`;
-  $("next").textContent = Q.i + 1 < Q.list.length ? "Suivante →" : "Voir mon résultat";
+  $("next").textContent = Q.i + 1 < Q.list.length ? "Question suivante" : "Voir mon résultat";
   $("next").classList.remove("hidden");
-  const seen = Store.get(K("seen"), {}); seen[q.id] = (seen[q.id] || 0) + 1; Store.set(K("seen"), seen);
-  const errs = new Set(Store.get(K("errors"), []));
-  ok ? errs.delete(q.id) : errs.add(q.id);
-  Store.set(K("errors"), [...errs]);
 }
 
 $("next").onclick = () => { if (Q.i + 1 < Q.list.length) { Q.i++; show(); } else finish(); };
@@ -115,32 +130,35 @@ function finish() {
   if (Q.over) return;
   Q.over = true; clearInterval(Q.timer);
   const used = (performance.now() - Q.t0) / 1000;
-  const total = Q.list.length;              // les questions sans réponse comptent comme fausses
+  const total = Q.list.length;
   const pct = Math.round(100 * Q.good / total);
   const pass = CFG.pass, passed = pass ? Q.good / total >= pass : null;
-  if (Q.mode.key !== "erreurs") { const h = Store.get(K("hist"), []); h.push({ p: pct, d: today() }); Store.set(K("hist"), h.slice(-30)); }
+  const hk = (CFG.bank || "defi") + ":hist";
+  if (Q.mode.key !== "revue") { const h = Store.get(hk, []); h.push({ p: pct, d: today() }); Store.set(hk, h.slice(-30)); }
+  if (CFG.mix) Store.set("defi:" + today(), pct);
   markPlayed();
 
   const per = {};
-  Q.list.forEach(q => { per[q.th] = per[q.th] || { g: 0, n: 0 }; per[q.th].n++; });
-  Q.answers.forEach(a => { if (a.ok) per[a.q.th].g++; });
-  const sit = Q.list.filter(q => q.s).length;
-  const sitGood = Q.answers.filter(a => a.ok && a.q.s).length;
+  Q.list.forEach(q => { const k = CFG.mix ? bankOf(q).name : bankOf(q).themes[q.th]; per[k] = per[k] || { g: 0, n: 0 }; per[k].n++; });
+  Q.answers.forEach(a => { if (a.ok) per[CFG.mix ? bankOf(a.q).name : bankOf(a.q).themes[a.q.th]].g++; });
+  const sit = Q.list.filter(q => q.s).length, sitGood = Q.answers.filter(a => a.ok && a.q.s).length;
   const wrong = Q.answers.filter(a => !a.ok);
   const unanswered = total - Q.answers.length;
 
-  const title = pass ? (passed ? "✅ Examen réussi !" : "⏳ Pas encore validé")
-    : pct >= 90 ? "Excellent 🔥" : pct >= 70 ? "Très bien 💪" : pct >= 50 ? "Bonne base, continue" : "Chaque erreur t'apprend quelque chose";
-  const color = (pass ? passed : pct >= 70) ? "var(--ok)" : "var(--warn)";
+  const title = pass ? (passed ? "Examen réussi" : "Pas encore validé")
+    : pct >= 90 ? "Excellent" : pct >= 70 ? "Très bien" : pct >= 50 ? "Bonne base, continue" : "Chaque erreur reviendra jusqu'à ce que tu la saches";
+  const color = (pass ? passed : pct >= 70) ? "var(--ok)" : "var(--sig)";
   const E = $("end");
   E.innerHTML = `<div class="qcard">
     <h2 style="margin:0 0 4px">${title}</h2>
-    <div class="row"><span class="big">${pct}%</span><span class="muted">${Q.good} / ${total} bonnes réponses${pass ? ` · objectif : ${Math.ceil(pass * total)} / ${total} (${pass * 100} %)` : ""} · ${fmtTime(used)}</span></div>
+    <div class="row"><span class="big">${pct} %</span><span class="muted">${Q.good}/${total} bonnes réponses${pass ? ` (il en faut ${Math.ceil(pass * total)})` : ""}, en ${fmtTime(used)}</span></div>
     <div class="target-line"><i style="width:${pct}%;background:${color}"></i>${pass ? `<b style="left:${pass * 100}%"></b>` : ""}</div>
-    ${pass ? `<p class="muted small" style="margin:4px 0 0">La barre blanche = seuil de réussite.${unanswered ? ` ${unanswered} question(s) sans réponse, comptées fausses comme à l'examen.` : ""}</p>` : ""}
-    <div class="themes">${Object.keys(per).map(t => `<div><b>${per[t].g}/${per[t].n}</b> — ${THEMES[t]}</div>`).join("")}${sit ? `<div><b>${sitGood}/${sit}</b> — dont mises en situation</div>` : ""}</div>
-    ${wrong.length ? `<h3 style="margin:18px 0 0">À retenir (${wrong.length} erreur${wrong.length > 1 ? "s" : ""})</h3><div class="errs" id="errs"></div>` : `<p style="margin-top:16px">Aucune erreur, bravo 👏</p>`}
-    <div class="row" style="margin-top:16px"><button class="btn primary" id="again">Nouveau QCM</button><button class="btn" id="menu">Menu</button></div>
+    ${pass ? `<p class="muted small" style="margin:4px 0 0">Le trait blanc marque le seuil de réussite.${unanswered ? ` ${unanswered} question(s) sans réponse sont comptées fausses, comme à l'examen.` : ""}</p>` : ""}
+    <div class="themes">${Object.keys(per).map(t => `<div><b>${per[t].g}/${per[t].n}</b> ${t}</div>`).join("")}${sit ? `<div><b>${sitGood}/${sit}</b> mises en situation</div>` : ""}</div>
+    ${wrong.length ? `<h3 style="margin:20px 0 0">À retenir</h3><p class="muted small" style="margin:4px 0 0">Ces ${wrong.length} question${wrong.length > 1 ? "s" : ""} reviendront dans « À réviser aujourd'hui » jusqu'à ce que tu les saches.</p><div class="errs" id="errs"></div>` : `<p style="margin-top:16px">Aucune erreur.</p>`}
+    <div class="row" style="margin-top:18px">${CFG.mix
+      ? `<a class="btn primary" href="focus.html">Passer aux révisions</a><a class="btn" href="index.html">Retour aux départs</a>`
+      : `<button class="btn primary" id="again">Nouvelle session</button><button class="btn" id="menu">Menu</button>`}</div>
   </div>`;
   const errBox = document.getElementById("errs");
   wrong.forEach(a => {
@@ -151,7 +169,15 @@ function finish() {
     errBox.appendChild(d);
   });
   $("quiz").classList.add("hidden"); E.classList.remove("hidden");
-  $("again").onclick = () => start(Q.mode);
-  $("menu").onclick = () => { E.classList.add("hidden"); $("setup").classList.remove("hidden"); buildModes(); };
+  if (!CFG.mix) {
+    $("again").onclick = () => start(Q.mode);
+    $("menu").onclick = () => { E.classList.add("hidden"); $("setup").classList.remove("hidden"); buildSetup(); };
+  }
   window.scrollTo(0, 0);
 }
+
+(async () => {
+  if (CFG.capitals) { try { await loadCapitalBank(); } catch (e) {} }
+  if (CFG.autostart) start({ key: "defi", time: CFG.time || 420 });
+  else buildSetup();
+})();

@@ -1,4 +1,5 @@
 // Banque Géopolitique — niveau accessible, chaque explication dit pourquoi c'est important
+(function () {
 const THEMES = {
   orga: "Organisations internationales",
   passages: "Routes et passages stratégiques",
@@ -87,3 +88,5 @@ const QUESTIONS = [
 {th:"monde",q:"Combien d'États sont membres de l'ONU ?",a:"193",w:["150","206","88"],e:"Le Vatican et la Palestine sont observateurs ; Taïwan et le Kosovo n'en sont pas membres."},
 {th:"monde",q:"Combien de pays compte l'Union européenne ?",a:"27",w:["25","28","30"],e:"28 avant le Brexit de 2020."}
 ];
+registerBank("geo", "Géopolitique", THEMES, QUESTIONS);
+})();

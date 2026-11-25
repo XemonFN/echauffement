@@ -2,38 +2,47 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pays du monde — Échauffement</title>
+<meta name="theme-color" content="#14181e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Échauffement">
+<link rel="preload" href="fonts/archivo-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <h1>🌍 Pays du monde</h1>
-    <a class="back" href="index.html">← Accueil</a>
+    <a class="back" href="index.html">← Départs</a>
+    <h1>Pays du monde</h1>
   </header>
 
-  <!-- Écran de choix -->
   <section id="setup">
-    <p class="muted">Choisis une zone. Tape le nom des pays : dès qu'un nom est reconnu, le pays se colore en vert et son nom s'affiche. À la fin, les pays oubliés apparaissent en rouge.</p>
+    <p class="intro">Trois façons de jouer sur la carte du monde. Les pays que tu rates reviennent en priorité les jours suivants.</p>
+    <div class="tabs" id="modetabs" role="group" aria-label="Mode de jeu"></div>
+    <p class="muted small" id="modehelp" style="max-width:70ch;margin:4px 0 0"></p>
     <div class="choices" id="choices"></div>
   </section>
 
-  <!-- Jeu -->
   <section id="game" class="hidden">
     <div class="hud">
-      <input id="guess" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Tape un pays…">
+      <input id="guess" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Ta réponse">
+      <div class="ask hidden" id="asking"><span class="q">Où est</span><b id="askname"></b><span class="n" id="asknum"></span><button class="btn" id="skip">Je ne sais pas</button></div>
       <div class="stat" id="timer"><small>Temps</small>--:--</div>
-      <div class="stat" id="score"><small>Trouvés</small>0 / 0</div>
-      <label class="toggle" title="Zoomer automatiquement sur chaque pays trouvé"><input type="checkbox" id="follow"> 📍 Suivre</label>
+      <div class="stat" id="score"><small>Trouvés</small>0/0</div>
+      <label class="toggle" title="Zoomer automatiquement sur chaque bonne réponse"><input type="checkbox" id="follow"> Suivre</label>
       <button class="btn danger" id="giveup">J'abandonne</button>
     </div>
     <div class="bar"><i id="prog"></i></div>
-    <div class="last" id="last"></div>
+    <p class="last" id="last" aria-live="polite"></p>
     <div class="mapbox">
-      <svg id="map"></svg>
-      <div class="zoombtns"><button id="zin" title="Zoomer">+</button><button id="zout" title="Dézoomer">−</button><button id="zreset" title="Recentrer">⟲</button></div>
-      <div class="hint">Molette / pincement pour zoomer · glisser pour déplacer</div>
+      <svg id="map" role="img" aria-label="Carte"></svg>
+      <div class="zoombtns"><button id="zin" aria-label="Zoomer">+</button><button id="zout" aria-label="Dézoomer">−</button><button id="zreset" aria-label="Recentrer">⟲</button></div>
+      <div class="hint">Molette ou pincement pour zoomer, glisser pour déplacer</div>
       <div class="tip" id="tip"></div>
     </div>
     <div id="results" class="results hidden"></div>
@@ -42,6 +51,7 @@
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
 <script src="js/common.js"></script>
+<script>const MAPSET = "world";</script>
 <script src="js/pays.js"></script>
 </body>
 </html>

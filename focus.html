@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Révisions — Échauffement</title>
+<meta name="theme-color" content="#14181e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="back" href="index.html">← Départs</a>
+    <h1>Révisions</h1>
+  </header>
+  <p class="intro">25 minutes de travail sans téléphone, puis 5 minutes de pause. Après 4 sessions, prends une vraie pause de 15 à 20 minutes. Écris d'abord ce que tu vas réviser : un objectif précis aide à démarrer.</p>
+
+  <div class="focus">
+    <div class="dial" id="dial">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><circle class="trk" cx="100" cy="100" r="90"/><circle class="arc" id="arc" cx="100" cy="100" r="90"/></svg>
+      <div class="read"><span class="time" id="time">25:00</span><span class="phase" id="phase">Prêt à décoller</span></div>
+    </div>
+    <input class="subject" id="subject" placeholder="Ex. : SLI1, partie 2.3 et exos du TD 2" aria-label="Ce que je révise">
+    <div class="cycles" id="cycles" aria-label="Sessions terminées aujourd'hui"></div>
+    <div class="row" style="justify-content:center">
+      <button class="btn primary" id="go">Démarrer</button>
+      <button class="btn" id="reset">Recommencer</button>
+    </div>
+    <p class="muted small" id="today" style="margin-top:16px"></p>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+{
+  const WORK = 25 * 60, BREAK = 5 * 60, LONG = 15 * 60;
+  const arc = document.getElementById("arc"), C = 2 * Math.PI * 90;
+  arc.style.strokeDasharray = C;
+  let phase = "work", left = WORK, total = WORK, running = false, endAt = 0, tick = null, lock = null;
+  const done = () => Store.get("pomo:" + today(), 0);
+  const subj = document.getElementById("subject");
+  subj.value = Store.get("pomo:subject", "");
+  subj.oninput = () => Store.set("pomo:subject", subj.value);
+
+  function render() {
+    document.getElementById("time").textContent = fmtTime(left);
+    document.getElementById("phase").textContent = running ? (phase === "work" ? "Concentration" : "Pause, lève-toi") : (left === total ? (phase === "work" ? "Prêt à décoller" : "Pause prête") : "En pause");
+    arc.style.strokeDashoffset = C * (1 - left / total);
+    document.getElementById("dial").classList.toggle("pause", phase !== "work");
+    document.getElementById("go").textContent = running ? "Pause" : left === total ? (phase === "work" ? "Démarrer" : "Lancer la pause") : "Reprendre";
+    const n = done();
+    document.getElementById("cycles").innerHTML = Array.from({ length: Math.max(4, n) }, (_, i) => `<i class="${i < n ? "done" : ""}"></i>`).join("");
+    const m = focusMinutes();
+    document.getElementById("today").textContent = m ? `Aujourd'hui : ${m} minutes de révision concentrée.` : "Aucune session terminée aujourd'hui pour l'instant.";
+    document.title = running ? `${fmtTime(left)} · Révisions` : "Révisions — Échauffement";
+  }
+  function beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, .35, .7].forEach(t => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 880; g.gain.setValueAtTime(.2, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + t + .3); o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + .3); });
+    } catch (e) {}
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  }
+  async function wake(on) {
+    try { if (on && "wakeLock" in navigator) lock = await navigator.wakeLock.request("screen"); else if (lock) { lock.release(); lock = null; } } catch (e) {}
+  }
+  function step() {
+    left = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+    if (left <= 0) {
+      running = false; clearInterval(tick); wake(false); beep();
+      if (phase === "work") {
+        Store.set("pomo:" + today(), done() + 1); addFocusMinutes(25); markPlayed();
+        phase = "break"; total = left = done() % 4 === 0 ? LONG : BREAK;
+      } else { phase = "work"; total = left = WORK; }
+    }
+    render();
+  }
+  document.getElementById("go").onclick = () => {
+    if (running) { running = false; clearInterval(tick); wake(false); }
+    else { running = true; endAt = Date.now() + left * 1000; tick = setInterval(step, 500); wake(true); }
+    render();
+  };
+  document.getElementById("reset").onclick = () => { running = false; clearInterval(tick); wake(false); phase = "work"; total = left = WORK; render(); };
+  document.addEventListener("visibilitychange", () => { if (running && !document.hidden) { step(); wake(true); } });
+  render();
+}
+</script>
+</body>
+</html>

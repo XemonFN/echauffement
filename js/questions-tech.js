@@ -1,4 +1,5 @@
 // Banque « Comment ça marche ? » — ingénierie, aéronautique, sciences du quotidien
+(function () {
 const THEMES = {
   aero: "Aéronautique",
   espace: "Espace",
@@ -78,3 +79,5 @@ const QUESTIONS = [
 {th:"physique",q:"Pourquoi une casserole en métal semble-t-elle plus froide qu'une planche en bois à la même température ?",a:"Le métal conduit mieux la chaleur et prend celle de ta main plus vite",w:["Le métal est vraiment plus froid","Le bois produit de la chaleur","Le métal attire l'air froid"],e:"Ta peau ressent un flux de chaleur, pas directement une température."},
 {th:"physique",q:"Pourquoi un vélo en mouvement tient-il en équilibre plus facilement qu'à l'arrêt ?",a:"La géométrie de la fourche et le cycliste corrigent en permanence la direction pour rester sous le centre de gravité",w:["Les roues deviennent plus légères","Le vent le pousse","La gravité diminue avec la vitesse"],e:"Le cycliste fait de l'automatique sans le savoir : petites corrections du guidon en boucle fermée."}
 ];
+registerBank("tech", "Comment ça marche ?", THEMES, QUESTIONS);
+})();
