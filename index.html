@@ -29,15 +29,15 @@
     </div>
   </section>
 
-  <section class="board" aria-labelledby="board-title">
-    <div class="board-head"><h2 id="board-title">Départs</h2><span class="clock" id="clock">--:--</span></div>
-    <div class="cols" aria-hidden="true"><span>Vol</span><span>Destination</span><span>Durée</span><span>Statut</span></div>
-    <ul class="flights" id="flights"></ul>
-    <div class="board-foot">
-      <span>Règle d'or : un seul vol, puis les révisions.</span>
-      <span>Sur iPhone : Partager, puis « Sur l'écran d'accueil ».</span>
-    </div>
+  <section class="how" aria-label="Comment ça marche">
+    <div class="step"><span class="num">1</span><div><b>Échauffe-toi 5 à 10 min</b><p>Choisis un seul jeu, ou le Défi du jour qui mélange un peu de tout.</p></div></div>
+    <div class="step"><span class="num">2</span><div><b>Tes erreurs reviennent</b><p>Ce que tu rates revient le jour même, ce que tu sais revient de plus en plus tard. Les jeux te proposent d'abord tes points faibles.</p></div></div>
+    <div class="step"><span class="num">3</span><div><b>Passe aux révisions</b><p>Lance le minuteur : 25 min de travail, 5 min de pause. Le site compte tes minutes.</p></div></div>
   </section>
+
+  <div class="board-head2"><h2>Départs</h2><span class="clock" id="clock">--:--</span></div>
+  <section class="tiles" id="flights" aria-label="Les jeux"></section>
+  <p class="muted small foot">Sur iPhone : dans Safari, Partager, puis « Sur l'écran d'accueil » pour l'avoir comme une app, même sans connexion.</p>
 </div>
 <script src="js/common.js"></script>
 <script>
@@ -48,24 +48,24 @@
   const defi = Store.get("defi:" + today(), null);
   const focus = focusMinutes();
   const FLIGHTS = [
-    { code: "DEF 001", href: "defi.html", dest: "Défi du jour", sub: "Un peu de tout, 12 questions", dur: "7 min", featured: true,
-      status: defi !== null ? [`Arrivé, ${defi} %`, ""] : ["Embarquement", "now"] },
-    { code: "MAP 101", href: "pays.html", dest: "Pays du monde", sub: "Noms, « Où est… ? », capitales", dur: "2-10 min", d: due(["loc:", "cap:"]) },
-    { code: "FRA 102", href: "france.html", dest: "Départements et régions", sub: "La carte de France", dur: "2-10 min", d: due(["fr:"]) },
-    { code: "CIV 201", href: "civique.html", dest: "Examen civique", sub: "Naturalisation, vrai format", dur: "10-45 min", d: due(["civ:"]), l: last("civ") },
-    { code: "GEO 202", href: "geo.html", dest: "Géopolitique", sub: "Comprendre le monde", dur: "5-10 min", d: due(["geo:"]), l: last("geo") },
-    { code: "TEC 203", href: "tech.html", dest: "Comment ça marche ?", sub: "Avions, énergie, automatique", dur: "5-10 min", d: due(["tech:"]), l: last("tech") },
-    { code: "ENG 204", href: "anglais.html", dest: "Anglais", sub: "Expressions US/UK, niveau avancé", dur: "5-10 min", d: due(["en:"]), l: last("en") },
-    { code: "REV 900", href: "focus.html", dest: "Révisions", sub: "Minuteur 25 + 5 min", dur: "25 min",
-      status: focus ? [`${focus} min aujourd'hui`, ""] : ["Après le vol", "due"] }
+    { code: "DEF 001", href: "defi.html", dest: "Défi du jour", long: "12 questions mélangées : civique, géopolitique, ingénierie, anglais, capitales. Le meilleur choix si tu ne sais pas quoi faire.", sub: "Un peu de tout, 12 questions", dur: "7 min", featured: true,
+      status: defi !== null ? [`Fait aujourd'hui, ${defi} %`, ""] : ["À faire aujourd'hui", "now"] },
+    { code: "MAP 101", href: "pays.html", dest: "Pays du monde", long: "Tape les pays d'un continent contre la montre, retrouve-les sur la carte avec « Où est… ? », ou joue aux capitales.", sub: "Noms, « Où est… ? », capitales", dur: "2-10 min", d: due(["loc:", "cap:"]) },
+    { code: "FRA 102", href: "france.html", dest: "Départements et régions", long: "La carte de France : tape le nom ou le numéro d'un département, ou clique dessus.", sub: "La carte de France", dur: "2-10 min", d: due(["fr:"]) },
+    { code: "CIV 201", href: "civique.html", dest: "Examen civique", long: "Le QCM de la naturalisation au vrai format : connaissances et mises en situation, 80 % pour réussir.", sub: "Naturalisation, vrai format", dur: "10-45 min", d: due(["civ:"]), l: last("civ") },
+    { code: "GEO 202", href: "geo.html", dest: "Géopolitique", long: "Organisations, routes stratégiques, conflits, économie. Chaque réponse explique pourquoi c'est important.", sub: "Comprendre le monde", dur: "5-10 min", d: due(["geo:"]), l: last("geo") },
+    { code: "TEC 203", href: "tech.html", dest: "Comment ça marche ?", long: "Avions, GPS, fusées, énergie, pilote automatique : l'ingénierie du quotidien expliquée simplement.", sub: "Avions, énergie, automatique", dur: "5-10 min", d: due(["tech:"]), l: last("tech") },
+    { code: "ENG 204", href: "anglais.html", dest: "Anglais", long: "Expressions US et UK, phrasal verbs, vocabulaire soutenu, argot et faux amis. Niveau avancé.", sub: "Expressions US/UK, niveau avancé", dur: "5-10 min", d: due(["en:"]), l: last("en") },
+    { code: "REV 900", href: "focus.html", k: "rev", dest: "Révisions", long: "Le minuteur pour attaquer tes cours juste après l'échauffement : 25 min de travail, 5 min de pause.", sub: "Minuteur 25 + 5 min", dur: "25 min",
+      status: focus ? [`${focus} min aujourd'hui`, ""] : ["À faire après l\'échauffement", "due"] }
   ];
   document.getElementById("flights").innerHTML = FLIGHTS.map((f, i) => {
-    const [txt, cls] = f.status || (f.d ? [`${f.d} à réviser`, "due"] : f.l !== undefined && f.l !== null ? [`À l'heure, ${f.l} %`, ""] : ["À l'heure", ""]);
-    return `<li><a class="flight${f.featured ? " featured" : ""}" href="${f.href}" style="--i:${i}">
-      <span class="code">${f.code}</span>
-      <span class="dest">${f.dest}<small>${f.sub}</small></span>
-      <span class="dur">${f.dur}</span>
-      <span class="status ${cls}">${txt}</span></a></li>`;
+    const [txt, cls] = f.status || (f.d ? [`${f.d} à réviser`, "due"] : f.l !== undefined && f.l !== null ? [`Dernier score : ${f.l} %`, ""] : ["Prêt", ""]);
+    return `<a class="tile${f.featured ? " featured" : ""}${f.k ? " " + f.k : ""}" href="${f.href}" style="--i:${i}">
+      <div class="t-top"><span class="code">${f.code}</span><span class="dur">${f.dur}</span></div>
+      <h3>${f.dest}</h3>
+      <p>${f.long}</p>
+      <span class="status ${cls}">${txt}</span></a>`;
   }).join("");
   const totalDue = due(["civ:", "geo:", "tech:", "en:", "capq:", "loc:", "cap:", "fr:"]);
   document.getElementById("c-streak").textContent = streak();
