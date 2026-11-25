@@ -6,7 +6,8 @@ const THEMES = {
   conflits: "Conflits et tensions",
   eco: "Économie et ressources",
   histoire: "Histoire récente",
-  monde: "Le monde en chiffres"
+  monde: "Le monde en chiffres",
+  actu: "Actualité"
 };
 const QUESTIONS = [
 // --- Organisations
@@ -86,7 +87,19 @@ const QUESTIONS = [
 {th:"monde",q:"Quelle est la capitale du Canada ?",a:"Ottawa",w:["Toronto","Montréal","Vancouver"],e:"Elle se trouve à la frontière entre l'Ontario anglophone et le Québec francophone."},
 {th:"monde",q:"Quelle langue a le plus de locuteurs natifs dans le monde ?",a:"Le chinois mandarin",w:["L'anglais","L'espagnol","L'hindi"],e:"L'anglais est la langue la plus parlée si l'on compte aussi ceux qui l'ont apprise."},
 {th:"monde",q:"Combien d'États sont membres de l'ONU ?",a:"193",w:["150","206","88"],e:"Le Vatican et la Palestine sont observateurs ; Taïwan et le Kosovo n'en sont pas membres."},
-{th:"monde",q:"Combien de pays compte l'Union européenne ?",a:"27",w:["25","28","30"],e:"28 avant le Brexit de 2020."}
+{th:"monde",q:"Combien de pays compte l'Union européenne ?",a:"27",w:["25","28","30"],e:"28 avant le Brexit de 2020."},
+
+// --- Actualité (octobre 2026)
+{th:"actu",q:"Qui a remporté le second tour de la présidentielle au Brésil, le 25 octobre 2026 ?",a:"Lula, pour un quatrième mandat",w:["Flávio Bolsonaro","Jair Bolsonaro, revenu au pouvoir","Personne : l'élection a été annulée"],e:"Lula a obtenu un peu plus de 51 % face à Flávio Bolsonaro, alors qu'il était derrière au premier tour (octobre 2026). Le Brésil est la première puissance d'Amérique du Sud et un membre fondateur des BRICS."},
+{th:"actu",q:"Quel mouvement a remporté les législatives anticipées en Serbie, le 25 octobre 2026 ?",a:"La « Liste étudiante », issue des manifestations",w:["Le parti d'Aleksandar Vučić, encore une fois","Un parti ultranationaliste pro-russe","Une coalition des partis des minorités"],e:"Vučić a reconnu sa défaite (octobre 2026). Le mouvement étudiant est né après l'effondrement de l'auvent de la gare de Novi Sad en novembre 2024. La Serbie est candidate à l'UE et proche de la Russie : son orientation compte pour les Balkans."},
+{th:"actu",q:"Quel a été le résultat des législatives en Israël fin octobre 2026 ?",a:"Le bloc de Netanyahou arrive en tête mais sans majorité (53 sièges sur 120)",w:["Le bloc de Netanyahou obtient une large majorité","L'opposition obtient seule la majorité absolue","Les élections ont été reportées à cause de la guerre"],e:"Il faut 61 sièges pour gouverner. L'opposition en a 48 et les partis arabes 19, qui deviennent des arbitres possibles (octobre 2026). La formation du gouvernement pèse sur la guerre à Gaza et la région."},
+{th:"actu",q:"Lors du sommet UE-Canada de Montréal (30 octobre 2026), quel statut nouveau a été évoqué pour le Canada ?",a:"Celui de premier « membre associé » de l'Union européenne",w:["Celui de 28e État membre de l'UE","Celui de membre de la zone euro","Celui de membre de l'espace Schengen"],e:"Une association sans adhésion, encore à définir. Le Canada veut aussi rejoindre le système satellite européen Galileo (octobre 2026). Signe d'un rapprochement face aux tensions commerciales avec les États-Unis."},
+{th:"actu",q:"Quelle mission de l'ONU a pris fin le 1er novembre 2026, faute d'accord au Conseil de sécurité ?",a:"La MINURSO, au Sahara occidental",w:["La FINUL, au Liban","La MONUSCO, en RD Congo","La MINUSMA, au Mali"],e:"Après 35 ans de présence. Fin octobre 2026, la Russie a mis son veto à un texte américain et un texte russe a été rejeté : le mandat n'a pas été renouvelé. Le territoire est disputé entre le Maroc et les indépendantistes du Front Polisario."},
+{th:"actu",q:"Qui a reçu le prix Nobel de la paix 2026, annoncé le 9 octobre ?",a:"Navi Pillay, juriste sud-africaine",w:["Donald Trump","Volodymyr Zelensky","Le Programme alimentaire mondial"],e:"Ancienne juge internationale et ancienne haute-commissaire de l'ONU aux droits de l'homme (octobre 2026). Le prix met en avant la justice internationale et les droits humains."},
+{th:"actu",q:"Quel pays a décidé, fin octobre 2026, d'envoyer des soldats au Niger à la demande des autorités nigériennes ?",a:"L'Algérie",w:["La France","Le Maroc","Le Nigeria"],e:"Le Parlement algérien a approuvé le 25 octobre et le président Tebboune a ordonné le déploiement le 26 (octobre 2026), officiellement pour protéger des installations pétrolières et des intérêts économiques. Un tournant pour l'Algérie, traditionnellement opposée à toute intervention à l'étranger, et pour le Sahel."},
+{th:"actu",q:"Quel pays a annoncé fin octobre 2026 l'envoi de plus de 2 000 soldats en Haïti ?",a:"Le Salvador",w:["Le Kenya","Les États-Unis","Le Brésil"],e:"Le président Bukele veut retrouver quatre techniciens salvadoriens disparus et combattre les gangs (octobre 2026). Au même moment, Haïti a reporté ses élections à juillet 2027 : le pays reste plongé dans une grave crise sécuritaire."},
+{th:"actu",q:"Qu'a décidé le groupe des principaux pays de l'OPEP+ le 4 octobre 2026 ?",a:"Maintenir sa production de pétrole inchangée pour novembre",w:["Doubler sa production","Arrêter toute exportation vers l'Europe","Exclure la Russie du groupe"],e:"Sept pays (dont l'Arabie saoudite et la Russie) ont gardé leurs quotas dans un marché déjà perturbé (octobre 2026). Leurs décisions influencent directement le prix de l'essence et du chauffage."},
+{th:"actu",q:"Qui a remporté la présidentielle en Bulgarie (2e tour, 1er novembre 2026), devenant la première femme à ce poste ?",a:"Iliana Iotova",w:["Ursula von der Leyen","Kristalina Gueorguieva","Maia Sandu"],e:"Présidente par intérim, elle l'a emporté au second tour après un premier tour le 25 octobre (octobre-novembre 2026). Elle prône le dialogue avec la Russie : une voix à suivre au sein de l'UE et de l'OTAN."}
 ];
 registerBank("geo", "Géopolitique", THEMES, QUESTIONS);
 })();
