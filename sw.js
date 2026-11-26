@@ -1,5 +1,5 @@
 // Service worker : le site marche hors connexion (application installée sur iPhone)
-const VERSION = "echauffement-04d0d05119";
+const VERSION = "echauffement-c5c42a9951";
 const FILES = ['./', 'anglais.html', 'atpl.html', 'auto.html', 'civique.html', 'css/style.css', 'data/countries.json', 'data/france-dep.json', 'data/france-reg.json', 'data/world-50m.json', 'defi.html', 'focus.html', 'fonts/archivo-latin-400-normal.woff2', 'fonts/archivo-latin-600-normal.woff2', 'fonts/archivo-latin-700-normal.woff2', 'fonts/archivo-latin-800-normal.woff2', 'fonts/ibm-plex-mono-latin-400-normal.woff2', 'fonts/ibm-plex-mono-latin-600-normal.woff2', 'france.html', 'geo.html', 'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'index.html', 'js/common.js', 'js/pays.js', 'js/questions-atpl.js', 'js/questions-auto.js', 'js/questions-en.js', 'js/questions-geo.js', 'js/questions.js', 'js/quiz.js', 'manifest.webmanifest', 'pays.html', 'vendor/d3.min.js', 'vendor/topojson-client.min.js'];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" })))).then(() => self.skipWaiting()));
