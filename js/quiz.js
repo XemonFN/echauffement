@@ -15,6 +15,22 @@ async function loadCapitalBank() {
 }
 
 const bankOf = q => BANKS[q.bank];
+
+// ----- Niveau adaptatif (Automatique, Géopolitique) -----
+// Ton niveau va de 1 à 4. Il monte quand tu réussis, baisse un peu quand tu rates.
+// Les questions sont choisies un peu AU-DESSUS de ton niveau, pour toujours progresser.
+const isAdaptive = B => B.questions.some(q => q.d);
+const getLvl = id => Store.get("lvl:" + id, 1);
+function setLvl(id, v) { Store.set("lvl:" + id, Math.max(1, Math.min(4, Math.round(v * 100) / 100))); }
+function adaptivePick(n, pool, push) {
+  const due = srsPick(Math.ceil(n * 0.3), pool.filter(q => SRS.isDue(q.id)));
+  const lvl = getLvl(pool[0].bank), target = Math.min(4.4, lvl + push);
+  const rest = pool.filter(q => !due.includes(q))
+    .map(q => [Math.abs((q.d || 2) - target) + (SRS.get(q.id) ? 0.7 : 0) + Math.random() * 0.6, q])
+    .sort((a, b) => a[0] - b[0]).map(p => p[1]);
+  return due.concat(rest.slice(0, n - due.length));
+}
+const pickFrom = (n, pool, push = 0.5) => isAdaptive({ questions: pool }) ? adaptivePick(n, pool, push) : srsPick(n, pool);
 let MAIN = CFG.bank ? BANKS[CFG.bank] : null;
 
 function modesWithReview() {
@@ -44,7 +60,8 @@ function buildSetup() {
     rows.push(`<div class="srow"><span class="sname">${MAIN.themes[t]}</span><span class="sbar"><i style="width:${pct ?? 0}%;background:${pct === null ? "transparent" : pct >= 80 ? "var(--ok)" : pct >= 60 ? "var(--sig)" : "var(--ko)"}"></i></span><span class="spct">${pct === null ? "—" : pct + " %"}</span><span class="sseen">${s.seen}/${s.total} vues</span></div>`);
   });
   const hist = Store.get(CFG.bank + ":hist", []);
-  $("stats").innerHTML = `<h3>Ta progression</h3>${rows.join("")}
+  const lvlHtml = isAdaptive(MAIN) ? (() => { const l = getLvl(MAIN.id); return `<div class="level"><span>Ton niveau</span><b>${l.toFixed(1).replace(".", ",")}</b><span class="of">/ 4</span><div class="lbar"><i style="width:${(l - 1) / 3 * 100}%"></i></div><p class="muted small">Il monte quand tu réussis. Les questions sont toujours choisies un peu au-dessus de ton niveau.</p></div>`; })() : "";
+  $("stats").innerHTML = `${lvlHtml}<h3>Ta progression</h3>${rows.join("")}
     <p class="muted small" style="margin:10px 0 0">${weakest ? `Point faible : <b>${MAIN.themes[weakest.t]}</b> (${weakest.pct} %). ` : ""}${hist.length ? `Derniers scores : ${hist.slice(-6).map(h => h.p + " %").join(", ")}.` : "Fais une première session pour voir tes statistiques."}</p>`;
 }
 
@@ -53,16 +70,16 @@ function start(mode) {
   let list;
   if (CFG.mix) {
     list = [];
-    CFG.mix.forEach(m => { if (BANKS[m.bank]) list.push(...srsPick(m.n, BANKS[m.bank].questions)); });
+    CFG.mix.forEach(m => { if (BANKS[m.bank]) list.push(...pickFrom(m.n, BANKS[m.bank].questions)); });
     list = shuffle(list);
   } else if (mode.key === "revue") {
     list = shuffle(srsPick(mode.n, MAIN.questions.filter(q => SRS.isDue(q.id))));
   } else if (mode.sit !== undefined) {
     list = shuffle(srsPick(mode.know, MAIN.questions.filter(q => !q.s))).concat(shuffle(srsPick(mode.sit, MAIN.questions.filter(q => q.s))));
   } else {
-    list = shuffle(srsPick(mode.n, MAIN.questions));
+    list = shuffle(pickFrom(mode.n, MAIN.questions, mode.push ?? 0.5));
   }
-  Q = { mode, list, i: 0, good: 0, answers: [], t0: performance.now(), over: false };
+  Q = { mode, list, lvl0: MAIN && isAdaptive(MAIN) ? getLvl(MAIN.id) : null, i: 0, good: 0, answers: [], t0: performance.now(), over: false };
   $("setup").classList.add("hidden"); $("end").classList.add("hidden"); $("quiz").classList.remove("hidden");
   Q.timer = setInterval(tick, 250);
   show();
@@ -81,7 +98,7 @@ function show() {
   $("qscore").innerHTML = `<small>Bonnes</small>${Q.good}`;
   $("qprog").style.width = (100 * Q.i / Q.list.length) + "%";
   const e = SRS.get(q.id);
-  $("qtheme").textContent = (CFG.mix ? B.name + " · " : "") + (q.s ? "Mise en situation · " : "") + B.themes[q.th] + (e && e.b === 0 ? " · déjà ratée" : "");
+  $("qtheme").textContent = (CFG.mix ? B.name + " · " : "") + (q.s ? "Mise en situation · " : "") + B.themes[q.th] + (q.d ? ` · niveau ${q.d}` : "") + (e && e.b === 0 ? " · déjà ratée" : "");
   $("qtheme").className = "tag" + (q.s ? " sit" : "");
   $("qtext").textContent = q.q;
   $("expl").classList.add("hidden"); $("next").classList.add("hidden");
@@ -103,6 +120,7 @@ function answer(btn, choice) {
   if (ok) Q.good++;
   Q.answers.push({ q, choice, ok });
   SRS.answer(q.id, ok);
+  if (q.d) { const l = getLvl(q.bank); setLvl(q.bank, ok ? l + 0.12 + (q.d > l ? 0.1 : 0) : l - (q.d <= l ? 0.15 : 0.05)); }
   [...$("opts").children].forEach(b => { b.disabled = true; if (b.lastChild.textContent === q.a) b.classList.add("good"); });
   if (!ok) btn.classList.add("bad");
   const ex = $("expl");
@@ -152,6 +170,7 @@ function finish() {
   E.innerHTML = `<div class="qcard">
     <h2 style="margin:0 0 4px">${title}</h2>
     <div class="row"><span class="big">${pct} %</span><span class="muted">${Q.good}/${total} bonnes réponses${pass ? ` (il en faut ${Math.ceil(pass * total)})` : ""}, en ${fmtTime(used)}</span></div>
+    ${Q.lvl0 !== null && Q.lvl0 !== undefined ? `<p style="margin:8px 0 0">Ton niveau : <b>${Q.lvl0.toFixed(1).replace(".", ",")}</b> → <b style="color:var(--sig)">${getLvl(MAIN.id).toFixed(1).replace(".", ",")}</b> / 4</p>` : ""}
     <div class="target-line"><i style="width:${pct}%;background:${color}"></i>${pass ? `<b style="left:${pass * 100}%"></b>` : ""}</div>
     ${pass ? `<p class="muted small" style="margin:4px 0 0">Le trait blanc marque le seuil de réussite.${unanswered ? ` ${unanswered} question(s) sans réponse sont comptées fausses, comme à l'examen.` : ""}</p>` : ""}
     <div class="themes">${Object.keys(per).map(t => `<div><b>${per[t].g}/${per[t].n}</b> ${t}</div>`).join("")}${sit ? `<div><b>${sitGood}/${sit}</b> mises en situation</div>` : ""}</div>

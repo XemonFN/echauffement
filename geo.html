@@ -22,7 +22,7 @@
   </header>
 
   <section id="setup">
-    <p class="intro">Organisations internationales, routes stratégiques, conflits, économie mondiale. Après chaque réponse, une phrase explique <b>pourquoi c'est important</b>.</p>
+    <p class="intro">Organisations internationales, routes stratégiques, conflits, économie mondiale. Après chaque réponse, une phrase explique <b>pourquoi c'est important</b>. Le niveau s'adapte à toi : il monte quand tu réussis, pour ne pas rester sur ce que tu sais déjà.</p>
     <div class="choices" id="modes"></div>
     <div id="stats"></div>
   </section>
@@ -51,8 +51,8 @@
 <script src="js/questions-geo.js"></script>
 <script>
 const CFG = { bank: "geo", pass: null, modes: [
-  { key: "flash", label: "Flash", sub: "10 questions, 5 min", n: 10, time: 300 },
-  { key: "session", label: "Session", sub: "20 questions, 10 min", n: 20, time: 600 }
+  { key: "flash", label: "Flash", sub: "10 questions à ton niveau, 5 min", n: 10, time: 300, push: 0.3 },
+  { key: "pousse", label: "Poussé", sub: "15 questions au-dessus de ton niveau, 10 min", n: 15, time: 600, push: 1 }
 ]};
 </script>
 <script src="js/quiz.js"></script>

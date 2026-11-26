@@ -72,7 +72,7 @@ function buildSetup() {
     const b = document.createElement("button");
     b.className = "choice" + (due ? " hot" : "");
     const info = mode === "ouest" ? `${Math.min(OUEST_N, n)} questions sur ${n}` : `${n} à trouver en ${fmtTime(timeFor(n))} min`;
-    b.innerHTML = `<b></b><span>${info}</span><span class="${due ? "due" : "muted"}">${due ? `${due} à réviser` : best ? `Record : ${best.found}/${best.total}` : "Pas encore joué"}</span>`;
+    b.innerHTML = `<b></b><span>${info}</span><span class="rec">${best ? `Record à battre : ${best.found}/${best.total}${best.found === best.total && best.time ? ` en ${fmtTime(best.time)}` : ""}` : "Pas encore de record"}</span>${due ? `<span class="due">${due} à réviser</span>` : ""}`;
     b.children[0].textContent = z.label;
     b.onclick = () => start(z);
     box.appendChild(b);
@@ -91,6 +91,7 @@ function start(zone, subset) {
   G = { zone, mode, list, all, found: new Set(), missed: new Set(), total: list.length, over: false, names: new Map(), t0: performance.now(), isSubset: !!subset };
   G.draw = mode === "ouest" ? all : list;
   G.duration = timeFor(list.length);
+  G.best = subset ? null : Store.get("best:" + MAPSET + ":" + mode + ":" + zone.key, null);
   if (mode !== "ouest") list.forEach(c => (mode === "cap" ? [c.cap, ...c.capal] : c.names).forEach(n => G.names.set(norm(n), c)));
   $("guess").classList.toggle("hidden", mode === "ouest");
   $("asking").classList.toggle("hidden", mode !== "ouest");
@@ -246,6 +247,10 @@ function updateHud() {
   $("timer").classList.toggle("low", G.mode !== "ouest" && t < 30);
   $("score").innerHTML = `<small>${G.mode === "ouest" ? "Justes" : "Trouvés"}</small>${G.found.size}/${G.total}`;
   $("prog").style.width = (100 * (G.found.size + G.missed.size) / G.total) + "%";
+  const b = $("best");
+  if (!G.best) b.innerHTML = `<small>Record</small>${G.isSubset ? "—" : "aucun"}`;
+  else if (G.found.size > G.best.found) { b.innerHTML = `<small>Record</small>battu !`; b.classList.add("beat"); }
+  else { b.innerHTML = `<small>Record</small>${G.best.found}/${G.best.total}`; b.classList.remove("beat"); }
 }
 
 // ---------- Fin ----------
@@ -270,7 +275,7 @@ function end() {
 
   const pct = G.total ? Math.round(100 * G.found.size / G.total) : 0;
   const key = "best:" + MAPSET + ":" + G.mode + ":" + G.zone.key, best = Store.get(key, null);
-  const better = !G.isSubset && G.mode !== "ouest" && (!best || G.found.size > best.found || (G.found.size === best.found && used < best.time));
+  const better = !G.isSubset && (!best || G.found.size > best.found || (G.found.size === best.found && used < best.time));
   if (better) Store.set(key, { found: G.found.size, total: G.total, time: Math.round(used) });
   markPlayed();
   const msg = pct === 100 ? "Parfait, tout est juste" : pct >= 80 ? "Très solide" : pct >= 50 ? "Bonne base, encore un effort" : "Les oubliés reviendront dans tes révisions";

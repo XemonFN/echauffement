@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Comment ça marche ? — Échauffement</title>
+<title>Automatique — Échauffement</title>
 <meta name="theme-color" content="#14181e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -18,11 +18,11 @@
 <div class="wrap">
   <header class="top">
     <a class="back" href="index.html">← Départs</a>
-    <h1>Comment ça marche ?</h1>
+    <h1>Automatique</h1>
   </header>
 
   <section id="setup">
-    <p class="intro">L'ingénierie autour de toi : avions, espace, électronique, énergie, automatique et physique du quotidien. Chaque réponse vient avec l'explication ou l'anecdote qui fait retenir.</p>
+    <p class="intro">L'automatique dans la vraie vie : avions, fusées, voitures, téléphones, médecine, réseau électrique, et les grandes histoires (Apollo 11, Ariane 5, 737 MAX). Pas le programme de tes cours, mais <b>ce qui te servira et te cultivera</b>. Le niveau s'adapte à toi et monte au fil de tes réussites.</p>
     <div class="choices" id="modes"></div>
     <div id="stats"></div>
   </section>
@@ -48,11 +48,11 @@
   <section id="end" class="hidden"></section>
 </div>
 <script src="js/common.js"></script>
-<script src="js/questions-tech.js"></script>
+<script src="js/questions-auto.js"></script>
 <script>
-const CFG = { bank: "tech", pass: null, modes: [
-  { key: "flash", label: "Flash", sub: "10 questions, 5 min", n: 10, time: 300 },
-  { key: "session", label: "Session", sub: "20 questions, 10 min", n: 20, time: 600 }
+const CFG = { bank: "auto", pass: null, modes: [
+  { key: "flash", label: "Flash", sub: "10 questions à ton niveau, 5 min", n: 10, time: 300, push: 0.3 },
+  { key: "pousse", label: "Poussé", sub: "15 questions au-dessus de ton niveau, 10 min", n: 15, time: 600, push: 1 }
 ]};
 </script>
 <script src="js/quiz.js"></script>
