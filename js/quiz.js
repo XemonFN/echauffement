@@ -34,12 +34,26 @@ const pickFrom = (n, pool, push = 0.5) => isAdaptive({ questions: pool }) ? adap
 let MAIN = CFG.bank ? BANKS[CFG.bank] : null;
 
 function modesWithReview() {
-  const pool = MAIN.questions.map(q => q.id);
+  const pool = (CFG.themeFilter ? poolOf() : MAIN.questions).map(q => q.id);
   const due = SRS.dueCount(pool);
   return CFG.modes.concat([{ key: "revue", label: "À réviser aujourd'hui", sub: due ? `${due} question${due > 1 ? "s" : ""} qui reviennent (erreurs et rappels)` : "Rien à réviser pour l'instant", n: Math.min(30, due), time: 900, due }]);
 }
 
+// Filtre par matière (ATPL)
+const themeKey = () => Store.get("tf:" + CFG.bank, "all");
+const poolOf = () => themeKey() === "all" ? MAIN.questions : MAIN.questions.filter(q => q.th === themeKey());
+function buildFilter() {
+  const f = $("filter"); if (!f || !CFG.themeFilter) return;
+  f.innerHTML = "";
+  [["all", "Toutes les matières"], ...Object.entries(MAIN.themes)].forEach(([k, lbl]) => {
+    const b = document.createElement("button");
+    b.className = "tab" + (k === themeKey() ? " on" : ""); b.textContent = lbl;
+    b.onclick = () => { Store.set("tf:" + CFG.bank, k); buildSetup(); };
+    f.appendChild(b);
+  });
+}
 function buildSetup() {
+  buildFilter();
   const box = $("modes"); box.innerHTML = "";
   modesWithReview().forEach(m => {
     const b = document.createElement("button");
@@ -73,11 +87,12 @@ function start(mode) {
     CFG.mix.forEach(m => { if (BANKS[m.bank]) list.push(...pickFrom(m.n, BANKS[m.bank].questions)); });
     list = shuffle(list);
   } else if (mode.key === "revue") {
-    list = shuffle(srsPick(mode.n, MAIN.questions.filter(q => SRS.isDue(q.id))));
+    list = shuffle(srsPick(mode.n, (CFG.themeFilter ? poolOf() : MAIN.questions).filter(q => SRS.isDue(q.id))));
   } else if (mode.sit !== undefined) {
     list = shuffle(srsPick(mode.know, MAIN.questions.filter(q => !q.s))).concat(shuffle(srsPick(mode.sit, MAIN.questions.filter(q => q.s))));
   } else {
-    list = shuffle(pickFrom(mode.n, MAIN.questions, mode.push ?? 0.5));
+    const pool = CFG.themeFilter ? poolOf() : MAIN.questions;
+    list = shuffle(pickFrom(Math.min(mode.n, pool.length), pool, mode.push ?? 0.5));
   }
   Q = { mode, list, lvl0: MAIN && isAdaptive(MAIN) ? getLvl(MAIN.id) : null, i: 0, good: 0, answers: [], t0: performance.now(), over: false };
   $("setup").classList.add("hidden"); $("end").classList.add("hidden"); $("quiz").classList.remove("hidden");

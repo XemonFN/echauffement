@@ -229,3 +229,5 @@ text.lbl.miss{stroke:#4a0e12}
 .choice .rec{color:var(--sig);font-weight:600}
 .stat.beat{background:var(--sig);color:var(--sig-ink)}
 .stat.beat small{color:var(--sig-ink)}
+.tabs.filter{display:flex;flex-wrap:wrap;border-radius:18px;margin-top:4px}
+.tabs.filter .tab{padding:7px 12px;min-height:36px;font-size:.88rem}

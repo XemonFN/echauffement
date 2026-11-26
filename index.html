@@ -48,13 +48,14 @@
   const defi = Store.get("defi:" + today(), null);
   const focus = focusMinutes();
   const FLIGHTS = [
-    { code: "DEF 001", href: "defi.html", dest: "Défi du jour", long: "12 questions mélangées : civique, géopolitique, automatique, anglais, capitales. Le meilleur choix si tu ne sais pas quoi faire.", sub: "Un peu de tout, 12 questions", dur: "7 min", featured: true,
+    { code: "DEF 001", href: "defi.html", dest: "Défi du jour", long: "12 questions mélangées : civique, géopolitique, automatique, aviation, anglais, capitales. Le meilleur choix si tu ne sais pas quoi faire.", sub: "Un peu de tout, 12 questions", dur: "7 min", featured: true,
       status: defi !== null ? [`Fait aujourd'hui, ${defi} %`, ""] : ["À faire aujourd'hui", "now"] },
     { code: "MAP 101", href: "pays.html", dest: "Pays du monde", long: "Tape les pays d'un continent contre la montre, retrouve-les sur la carte avec « Où est… ? », ou joue aux capitales.", sub: "Noms, « Où est… ? », capitales", dur: "2-10 min", d: due(["loc:", "cap:"]) },
     { code: "FRA 102", href: "france.html", dest: "Départements et régions", long: "La carte de France : tape le nom ou le numéro d'un département, ou clique dessus.", sub: "La carte de France", dur: "2-10 min", d: due(["fr:"]) },
     { code: "CIV 201", href: "civique.html", dest: "Examen civique", long: "Le QCM de la naturalisation au vrai format : connaissances et mises en situation, 80 % pour réussir.", sub: "Naturalisation, vrai format", dur: "10-45 min", d: due(["civ:"]), l: last("civ") },
     { code: "GEO 202", href: "geo.html", dest: "Géopolitique", long: "Organisations, routes stratégiques, conflits, économie. Chaque réponse explique pourquoi c'est important.", sub: "Comprendre le monde", dur: "5-10 min", d: due(["geo:"]), l: last("geo") },
     { code: "AUT 203", href: "auto.html", dest: "Automatique", long: "L'automatique dans la vraie vie : avions, fusées, voitures, médecine, grandes histoires. Le niveau monte avec toi.", sub: "", dur: "5-10 min", d: due(["auto:"]), l: last("auto") },
+    { code: "ATP 205", href: "atpl.html", dest: "Aviation ATPL", long: "Le programme du pilote de ligne en 13 matières : météo, droit aérien, principes du vol… On part de zéro, le niveau monte avec toi.", sub: "", dur: "5-10 min", d: due(["atpl:"]), l: last("atpl") },
     { code: "ENG 204", href: "anglais.html", dest: "Anglais", long: "Expressions US et UK, phrasal verbs, vocabulaire soutenu, argot et faux amis. Niveau avancé.", sub: "Expressions US/UK, niveau avancé", dur: "5-10 min", d: due(["en:"]), l: last("en") },
     { code: "REV 900", href: "focus.html", k: "rev", dest: "Révisions", long: "Le minuteur pour attaquer tes cours juste après l'échauffement : 25 min de travail, 5 min de pause.", sub: "Minuteur 25 + 5 min", dur: "25 min",
       status: focus ? [`${focus} min aujourd'hui`, ""] : ["À faire après l\'échauffement", "due"] }
@@ -67,7 +68,7 @@
       <p>${f.long}</p>
       <span class="status ${cls}">${txt}</span></a>`;
   }).join("");
-  const totalDue = due(["civ:", "geo:", "auto:", "en:", "capq:", "loc:", "cap:", "fr:"]);
+  const totalDue = due(["civ:", "geo:", "auto:", "atpl:", "en:", "capq:", "loc:", "cap:", "fr:"]);
   document.getElementById("c-streak").textContent = streak();
   document.getElementById("c-due").textContent = totalDue;
   document.getElementById("c-focus").textContent = focus;
