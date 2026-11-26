@@ -143,6 +143,7 @@ function answer(btn, choice) {
   const e = SRS.get(q.id);
   ex.innerHTML = `<b>${ok ? "Bonne réponse." : "Mauvaise réponse."}</b> `;
   ex.appendChild(document.createTextNode(q.e));
+  if (q.src) { const s = document.createElement("div"); s.className = "when"; s.textContent = "Source : manuel Oxford ATPL " + q.src; ex.appendChild(s); }
   const nxt = document.createElement("div"); nxt.className = "when";
   nxt.textContent = ok ? `Elle reviendra dans ${SRS_DAYS[e.b]} jour${SRS_DAYS[e.b] > 1 ? "s" : ""}.` : "Elle reviendra dans tes révisions du jour.";
   ex.appendChild(nxt);
