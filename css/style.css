@@ -231,3 +231,16 @@ text.lbl.miss{stroke:#4a0e12}
 .stat.beat small{color:var(--sig-ink)}
 .tabs.filter{display:flex;flex-wrap:wrap;border-radius:18px;margin-top:4px}
 .tabs.filter .tab{padding:7px 12px;min-height:36px;font-size:.88rem}
+/* Liste des pays trouvés sous la carte */
+.foundbox{margin-top:16px}
+.foundbox h3{margin:0 0 8px;font-size:1rem;color:var(--ok)}
+.fchips{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{display:inline-flex;align-items:center;gap:6px;background:#15261d;border:1px solid #2c5a3c;color:#c9f5d6;padding:6px 12px;border-radius:999px;font-size:.9rem;cursor:pointer;animation:fin .35s ease-out}
+.fchip:hover{border-color:var(--ok)}
+.chip{display:inline-flex;align-items:center;gap:6px}
+.flag{font-size:1.15em;line-height:1}
+.flag.num{font-family:"IBM Plex Mono",monospace;font-size:.8em;opacity:.8}
+@keyframes fin{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fchip{animation:none}}
+.tile.apart{border-color:#3a3f6b;background:linear-gradient(180deg,#1b1f3a,#151827)}
+.tile.apart .code{color:#b9c2ff}

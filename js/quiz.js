@@ -94,7 +94,7 @@ function start(mode) {
     const pool = CFG.themeFilter ? poolOf() : MAIN.questions;
     list = shuffle(pickFrom(Math.min(mode.n, pool.length), pool, mode.push ?? 0.5));
   }
-  Q = { mode, list, lvl0: MAIN && isAdaptive(MAIN) ? getLvl(MAIN.id) : null, i: 0, good: 0, answers: [], t0: performance.now(), over: false };
+  Q = { mode, list, lvl0: MAIN && isAdaptive(MAIN) ? getLvl(MAIN.id) : null, i: 0, good: 0, answers: [], t0: performance.now(), over: false, best: bestOf() };
   $("setup").classList.add("hidden"); $("end").classList.add("hidden"); $("quiz").classList.remove("hidden");
   Q.timer = setInterval(tick, 250);
   show();
@@ -107,10 +107,20 @@ function tick() {
   if (left <= 0) finish();
 }
 
+// Record personnel affiché pendant la partie (défi du jour et quiz)
+function bestOf() { const h = Store.get((CFG.bank || "defi") + ":hist", []); return h.length ? Math.max(...h.map(x => x.p)) : null; }
+function showBest() {
+  const el = document.getElementById("qbest"); if (!el) return;
+  const now = Math.round(100 * Q.good / Q.list.length);
+  if (Q.best === null) el.innerHTML = `<small>Record</small>à établir`;
+  else if (now > Q.best) { el.innerHTML = `<small>Record</small>battu !`; el.classList.add("beat"); }
+  else { el.innerHTML = `<small>Record</small>${Q.best} %`; el.classList.remove("beat"); }
+}
 function show() {
   const q = Q.list[Q.i], B = bankOf(q);
   $("qnum").innerHTML = `<small>Question</small>${Q.i + 1}/${Q.list.length}`;
   $("qscore").innerHTML = `<small>Bonnes</small>${Q.good}`;
+  showBest();
   $("qprog").style.width = (100 * Q.i / Q.list.length) + "%";
   const e = SRS.get(q.id);
   $("qtheme").textContent = (CFG.mix ? B.name + " · " : "") + (q.s ? "Mise en situation · " : "") + B.themes[q.th] + (q.d ? ` · niveau ${q.d}` : "") + (e && e.b === 0 ? " · déjà ratée" : "");
@@ -147,7 +157,7 @@ function answer(btn, choice) {
   const nxt = document.createElement("div"); nxt.className = "when";
   nxt.textContent = ok ? `Elle reviendra dans ${SRS_DAYS[e.b]} jour${SRS_DAYS[e.b] > 1 ? "s" : ""}.` : "Elle reviendra dans tes révisions du jour.";
   ex.appendChild(nxt);
-  $("qscore").innerHTML = `<small>Bonnes</small>${Q.good}`;
+  $("qscore").innerHTML = `<small>Bonnes</small>${Q.good}`; showBest();
   $("next").textContent = Q.i + 1 < Q.list.length ? "Question suivante" : "Voir mon résultat";
   $("next").classList.remove("hidden");
 }

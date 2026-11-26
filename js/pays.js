@@ -99,6 +99,7 @@ function start(zone, subset) {
   G.timeLeft = mode === "ouest" ? 0 : G.duration;
   updateHud();
   $("last").textContent = "";
+  $("foundlist").innerHTML = ""; $("foundtitle").textContent = mode === "ouest" ? "Bien placés" : "Trouvés";
   $("giveup").textContent = mode === "ouest" ? "Terminer" : "J'abandonne"; $("giveup").onclick = () => end();
   if (mode === "ouest") { G.queue = list.slice(); nextAsk(); }
   else { const inp = $("guess"); inp.value = ""; inp.disabled = false; inp.placeholder = mode === "cap" ? "Tape une capitale…" : "Tape un nom…"; inp.focus(); }
@@ -173,6 +174,16 @@ function rescale() {
   gRoot.selectAll("circle.hit").attr("r", 11 / Math.sqrt(kZoom));
 }
 const labelText = c => G.mode === "cap" ? `${c.cap} (${c.fr})` : c.fr;
+// Drapeau (emoji) d'un pays, ou numéro d'un département
+const flagOf = c => c.a2 ? String.fromCodePoint(...[...c.a2.toUpperCase()].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65)) : (c.c === "dep" ? c.id.slice(1) : "");
+function chipHTML(c) { const f = flagOf(c); return (f ? `<span class="flag${c.a2 ? "" : " num"}">${f}</span>` : "") + `<span class="nm"></span>`; }
+function addFoundChip(c) {
+  const box = $("foundlist"), b = document.createElement("button");
+  b.className = "fchip"; b.innerHTML = chipHTML(c); b.querySelector(".nm").textContent = labelText(c);
+  b.onclick = () => { flyTo(c, true); pulse(c, true); setTimeout(() => pulse(c, false), 2500); };
+  box.prepend(b);
+  $("foundtitle").textContent = `Trouvés (${G.found.size})`;
+}
 function addLabel(c, cls) {
   const p = G.labelPos[c.id]; if (!p) return;
   G.labelsG.append("text").attr("class", "lbl " + (cls || "")).attr("x", p[0]).attr("y", p[1])
@@ -207,7 +218,7 @@ function tryGuess(force) {
   if (!c || G.found.has(c.id)) { if (force) { $("guess").value = ""; $("last").textContent = c ? "Déjà trouvé : " + labelText(c) : "Pas reconnu ici"; $("last").className = "last ko"; } return; }
   const amb = [...G.names.entries()].some(([k, o]) => k !== v && k.startsWith(v) && !G.found.has(o.id) && o.id !== c.id);
   if (amb && !force) { pendingTimer = setTimeout(() => tryGuess(true), 900); return; }
-  G.found.add(c.id); mark(c, "found"); addLabel(c);
+  G.found.add(c.id); mark(c, "found"); addLabel(c); addFoundChip(c);
   const inp = $("guess"); inp.value = ""; inp.classList.add("flash"); setTimeout(() => inp.classList.remove("flash"), 250);
   $("last").textContent = labelText(c); $("last").className = "last ok";
   flyTo(c); updateHud();
@@ -229,7 +240,7 @@ function clickGuess(id) {
   const c = G.cur, ok = id === c.id;
   SRS.answer(srsId(c, "ouest"), ok);
   if (ok) {
-    G.found.add(c.id); mark(c, "found"); addLabel(c);
+    G.found.add(c.id); mark(c, "found"); addLabel(c); addFoundChip(c);
     $("last").textContent = "Juste : " + c.fr; $("last").className = "last ok";
     updateHud(); setTimeout(nextAsk, 650);
   } else {
@@ -248,7 +259,7 @@ function updateHud() {
   $("score").innerHTML = `<small>${G.mode === "ouest" ? "Justes" : "Trouvés"}</small>${G.found.size}/${G.total}`;
   $("prog").style.width = (100 * (G.found.size + G.missed.size) / G.total) + "%";
   const b = $("best");
-  if (!G.best) b.innerHTML = `<small>Record</small>${G.isSubset ? "—" : "aucun"}`;
+  if (!G.best) b.innerHTML = `<small>Record</small>${G.isSubset ? "—" : "à établir"}`;
   else if (G.found.size > G.best.found) { b.innerHTML = `<small>Record</small>battu !`; b.classList.add("beat"); }
   else { b.innerHTML = `<small>Record</small>${G.best.found}/${G.best.total}`; b.classList.remove("beat"); }
 }
@@ -282,12 +293,12 @@ function end() {
   const R = $("results");
   R.innerHTML = `<h2>${msg}</h2>
     <div class="row"><span class="big">${G.found.size}/${G.total}</span><span class="muted">${pct} %, en ${fmtTime(used)}${better ? " · <b class='okc'>nouveau record</b>" : ""}</span></div>
-    ${missed.length ? `<p class="muted small" style="margin:12px 0 0">À retenir, en rouge sur la carte. Touche un nom pour le retrouver :</p>
-    <div class="chips">${missed.map(c => `<button class="chip" data-id="${c.id}"></button>`).join("")}</div>` : ""}
+    ${missed.length ? `<p class="muted small" style="margin:12px 0 0">Pas trouvés (${missed.length}), en rouge sur la carte. Touche un nom pour le retrouver :</p>
+    <div class="chips">${missed.map(c => `<button class="chip" data-id="${c.id}">${chipHTML(c)}</button>`).join("")}</div>` : ""}
     <div class="row" style="margin-top:16px">${missed.length ? `<button class="btn primary" id="replay">Rejouer mes ${missed.length} oubliés</button>` : ""}<button class="btn${missed.length ? "" : " primary"}" id="again">Rejouer</button><button class="btn" id="other">Changer de zone</button></div>`;
   R.classList.remove("hidden");
   R.querySelectorAll(".chip").forEach((ch, i) => {
-    const c = missed[i]; ch.textContent = labelText(c);
+    const c = missed[i]; ch.querySelector(".nm").textContent = labelText(c);
     ch.onmouseenter = () => pulse(c, true); ch.onmouseleave = () => pulse(c, false);
     ch.onclick = () => { flyTo(c, true); pulse(c, true); setTimeout(() => pulse(c, false), 2500); };
   });

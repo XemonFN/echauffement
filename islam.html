@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Islam — Échauffement</title>
+<meta name="theme-color" content="#14181e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Échauffement">
+<link rel="preload" href="fonts/archivo-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="back" href="index.html">← Départs</a>
+    <h1>Islam</h1>
+  </header>
+
+  <section id="setup">
+    <p class="intro">Un quiz à part, juste pour toi : la foi, les piliers, le Coran, la vie du Prophète ﷺ et des prophètes, l'histoire et la civilisation, la pratique de tous les jours, et comment <b>répondre en français aux idées reçues</b>. Chaque réponse est expliquée avec sa référence (sourate:verset ou recueil de hadiths). Il n'entre pas dans le défi du jour.</p>
+    <div class="choices" id="modes"></div>
+    <div id="stats"></div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="hud">
+      <div class="stat" id="qnum"><small>Question</small>1</div>
+      <div class="stat" id="qscore"><small>Bonnes</small>0</div>
+      <div class="stat" id="qtimer"><small>Temps</small>--:--</div>
+      <button class="btn danger" id="stop" style="margin-left:auto">Terminer</button>
+    </div>
+    <div class="bar"><i id="qprog"></i></div>
+    <div class="qcard">
+      <span class="tag" id="qtheme"></span>
+      <p class="qtext" id="qtext"></p>
+      <div class="opts" id="opts"></div>
+      <div class="expl hidden" id="expl" aria-live="polite"></div>
+      <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn primary hidden" id="next">Question suivante</button></div>
+    </div>
+    <p class="muted small">Clavier : touches 1 à 4 pour répondre, Entrée pour continuer.</p>
+  </section>
+
+  <section id="end" class="hidden"></section>
+</div>
+<script src="js/common.js"></script>
+<script src="js/questions-islam.js"></script>
+<script>
+const CFG = { bank: "isl", pass: null, modes: [
+  { key: "flash", label: "Flash", sub: "10 questions à ton niveau, 5 min", n: 10, time: 300, push: 0.3 },
+  { key: "pousse", label: "Poussé", sub: "15 questions au-dessus de ton niveau, 10 min", n: 15, time: 600, push: 1 }
+]};
+</script>
+<script src="js/quiz.js"></script>
+</body>
+</html>
