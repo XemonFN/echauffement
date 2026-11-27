@@ -244,3 +244,5 @@ text.lbl.miss{stroke:#4a0e12}
 @media (prefers-reduced-motion:reduce){.fchip{animation:none}}
 .tile.apart{border-color:#3a3f6b;background:linear-gradient(180deg,#1b1f3a,#151827)}
 .tile.apart .code{color:#b9c2ff}
+.tile.apart.tn{border-color:#6b2a2e;background:linear-gradient(180deg,#341719,#1f1314)}
+.tile.apart.tn .code{color:#ff9ca0}
